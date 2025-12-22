@@ -1,14 +1,25 @@
 <template>
-  <div>
-    <h1>FinFit</h1>
-
+  <div class="app">
+    <NavBar />
+    <main class="container">
+      <router-view />
+    </main>
   </div>
 </template>
 
 <script setup>
-
+import NavBar from "@/components/NavBar.vue";
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
 
+.app {
+  min-height: 100vh;
+  background: #ffffff;
+}
 </style>
