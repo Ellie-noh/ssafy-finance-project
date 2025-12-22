@@ -8,6 +8,7 @@
       <RouterLink to="/fx" class="link">Fx</RouterLink>
       <RouterLink to="/banks" class="link">Banks</RouterLink>
       <RouterLink to="/board" class="link">Board</RouterLink>
+      <RouterLink to="/search" class="link">Videos</RouterLink>
     </div>
 
     <div class="actions">
