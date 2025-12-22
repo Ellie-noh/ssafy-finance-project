@@ -1,0 +1,10 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('save-deposit-products/', views.save_deposit_products),
+    path('deposit-products/', views.deposit_products),
+    path('deposit-products/create/', views.create_product),
+    path('deposit-product-options/<str:fin_prdt_cd>/', views.product_options),
+    path('top-rate/', views.top_rate),
+]
