@@ -12,6 +12,10 @@ import BoardDetail from '@/pages/BoardDetail.vue'
 import BoardCreate from '@/pages/BoardCreate.vue'
 import Profile from '@/pages/Profile.vue'
 
+import SearchView from '@/pages/SearchView.vue';
+import VideoDetail from '@/pages/VideoDetail.vue';
+import SavedView from '@/pages/SavedView.vue';
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -32,6 +36,10 @@ const router = createRouter({
     { path: '/profile', name: 'Profile', component: Profile },
 
     { path: '/:pathMatch(.*)*', redirect: '/' },
+
+    { path: '/search', component: SearchView },
+    { path: '/video/:id', component: VideoDetail },
+    { path: '/saved', component: SavedView }
   ],
 })
 
