@@ -77,14 +77,6 @@ def deposit_products(request):
     return Response(serializer.data)
 
 
-@api_view(['POST'])
-def create_product(request):
-    serializer = DepositProductSerializer(data=request.data)
-    if serializer.is_valid(raise_exception=True):
-        serializer.save()
-        return Response({"message": "데이터 삽입 성공"}, status=status.HTTP_201_CREATED)
-
-
 @api_view(['GET'])
 def product_options(request, fin_prdt_cd):
     product = get_object_or_404(DepositProduct, fin_prdt_cd=fin_prdt_cd)

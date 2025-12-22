@@ -1,21 +1,31 @@
 from rest_framework import serializers
-from .models import CustomUser
-from products.serializers import ProductSerializer  # 가입 상품 Serializer (F03 가정)
+from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
 
-class CustomUserSerializer(serializers.ModelSerializer):
-    joined_products = ProductSerializer(many=True, read_only=True)
+User = get_user_model()
+
+class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password2 = serializers.CharField(write_only=True, required=True)
 
     class Meta:
-        model = CustomUser
-        fields = ['id', 'username', 'email', 'joined_products']
-        read_only_fields = ['id']
+        model = User
+        fields = ['id', 'username', 'email', 'password', 'password2', 'joined_products']  # 금융 가입 상품 포함
 
-class CustomUserCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ['username', 'email', 'password']
-        extra_kwargs = {'password': {'write_only': True}}
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "비밀번호가 일치하지 않습니다."})
+        return attrs
 
     def create(self, validated_data):
-        user = CustomUser.objects.create_user(**validated_data)
+        validated_data.pop('password2')
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
         return user
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, write_only=True)
