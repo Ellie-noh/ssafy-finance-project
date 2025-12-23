@@ -333,7 +333,7 @@ const data = {
       "전북은행",
       "제주은행",
       "수협"
-    ]
+    ],
   }
   
   export default data

@@ -16,23 +16,16 @@
         <option v-for="bank in banks" :key="bank" :value="bank">{{ bank }}</option>
       </select>
       <button @click="searchBanks" class="button" :disabled="!selectedProvince || !selectedCity || !selectedBank">찾기</button>
-
-      <div class="list">
-        <div v-for="place in places" :key="place.id" class="item">
-          <div class="name">{{ place.place_name }}</div>
-          <div class="addr">{{ place.address_name }}</div>
-        </div>
-      </div>
     </div>
 
-    <div ref="mapContainer" style="width: 100%; height: 400px;" v-show="sdkLoaded"></div>
+    <div ref="mapContainer" class="map-container" v-show="sdkLoaded"></div>
     <div v-if="!sdkLoaded">지도 로딩 중...</div>
   </section>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
-import { API_KEY } from './apikey.js'
+import { API_KEY, REST_API_KEY } from './apikey.js'
 import data from './data.js'
 
 const selectedProvince = ref('')
@@ -52,42 +45,46 @@ onMounted(() => {
 
 const loadKakaoMapScript = () => {
   if (window.kakao && window.kakao.maps) {
-    kakao.maps.load(async () => {
-      sdkLoaded.value = true
-      await nextTick()
-      initMap()
-    })
+    initMap()
     return
   }
 
   const script = document.createElement('script')
-  script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${API_KEY}&autoload=false&libraries=services`
+  script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${API_KEY}`
   script.onload = () => {
-    kakao.maps.load(async () => {
-      sdkLoaded.value = true
-      await nextTick()
+    nextTick(() => {
       initMap()
     })
   }
-  script.onerror = () => {
-    console.error('Kakao Maps SDK 로드 실패 - API 키를 확인하세요. developers.kakao.com에서 유효한 키를 발급받아 사용하세요.')
+  script.onerror = (error) => {
+    console.error('Kakao Maps SDK 로드 실패:', error)
+    alert('지도 로드에 실패했습니다. 네트워크 연결을 확인해주세요.')
   }
   document.head.appendChild(script)
 }
 
 const initMap = () => {
   if (!mapContainer.value) {
-    console.error('지도 컨테이너를 찾을 수 없습니다. DOM 로드 타이밍을 확인하세요.')
+    console.error('지도 컨테이너를 찾을 수 없습니다.')
     return
   }
   const mapOption = {
-    center: new kakao.maps.LatLng(37.498004, 127.027706),
+    center: new kakao.maps.LatLng(37.500486063, 127.022061548),
     level: 3
   }
 
   map.value = new kakao.maps.Map(mapContainer.value, mapOption)
-  ps.value = new kakao.maps.services.Places()
   infowindow.value = new kakao.maps.InfoWindow({ zIndex: 1 })
+  sdkLoaded.value = true
+
+  // 지도 리사이즈 강제 호출
+  setTimeout(() => {
+    if (map.value) {
+      map.value.relayout()
+      console.log('지도 리사이즈 완료')
+    }
+  }, 100)
+
   console.log('Kakao Map 초기화 성공')
 }
 
@@ -100,30 +97,49 @@ const cities = computed(() => {
 const banks = data.bankInfo
 
 const searchBanks = () => {
-  if (!sdkLoaded.value || !map.value || !ps.value) {
-    alert('지도 또는 검색 서비스가 아직 로드되지 않았습니다. 잠시 후 다시 시도해주세요.')
+  if (!selectedProvince.value || !selectedCity.value || !selectedBank.value) {
+    alert("모든 조건을 선택해주세요!")
     return
   }
+
   const keyword = `${selectedProvince.value} ${selectedCity.value} ${selectedBank.value}`
   console.log(`검색 시작: ${keyword}`)
-  ps.value.keywordSearch(keyword, placesSearchCB, { useMapBounds: false })
-}
 
-const placesSearchCB = (data, status) => {
-  if (status === kakao.maps.services.Status.OK) {
-    places.value = data
-    displayPlaces(data)
-  } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
-    alert('검색 결과가 존재하지 않습니다.')
-  } else if (status === kakao.maps.services.Status.ERROR) {
-    alert('검색 중 오류가 발생했습니다. API 키가 유효한지 확인하세요.')
-  }
+  // Kakao 로컬 REST API 호출
+  const url = `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(keyword)}`
+
+  fetch(url, {
+    headers: {
+      'Authorization': `KakaoAK ${REST_API_KEY}`
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.documents && data.documents.length > 0) {
+      places.value = data.documents.map(place => ({
+        place_name: place.place_name,
+        address_name: place.address_name,
+        y: place.y,
+        x: place.x,
+        id: place.id
+      }))
+      displayPlaces(places.value)
+    } else {
+      alert('검색 결과가 존재하지 않습니다.')
+    }
+  })
+  .catch(error => {
+    console.error('검색 오류:', error)
+    alert('검색 중 오류가 발생했습니다.')
+  })
 }
 
 const displayPlaces = (placesData) => {
-  const bounds = new kakao.maps.LatLngBounds()
-
   removeMarkers()
+
+  if (placesData.length === 0) return
+
+  const bounds = new kakao.maps.LatLngBounds()
 
   for (let i = 0; i < placesData.length; i++) {
     const place = placesData[i]
@@ -137,7 +153,8 @@ const displayPlaces = (placesData) => {
     kakao.maps.event.addListener(marker, 'click', () => {
       infowindow.value.setContent(`
         <div style="padding:5px;z-index:1; width:200px;">
-          <strong>${place.place_name}</strong>
+          <strong>${place.place_name}</strong><br>
+          ${place.address_name}
         </div>
       `)
       infowindow.value.open(map.value, marker)
@@ -146,7 +163,10 @@ const displayPlaces = (placesData) => {
     bounds.extend(new kakao.maps.LatLng(place.y, place.x))
   }
 
-  map.value.setBounds(bounds)
+  // 검색 결과가 있으면 bounds 설정, 없으면 기본 위치 유지
+  if (placesData.length > 0) {
+    map.value.setBounds(bounds)
+  }
 }
 
 const removeMarkers = () => {
@@ -192,9 +212,13 @@ const removeMarkers = () => {
   cursor: pointer;
 }
 
-.list {
-  display: flex;
-  flex-direction: column;
+.map-container {
+  width: 100%;
+  height: 500px;
+  min-height: 400px;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .item {
