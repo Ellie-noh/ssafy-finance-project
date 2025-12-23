@@ -8,24 +8,32 @@
     <div class="list">
       <div v-for="post in posts" :key="post.id" class="item" @click="goDetail(post.id)">
         <div class="item-title">{{ post.title }}</div>
-        <div class="item-meta">{{ post.author }} · {{ post.created_at }}</div>
+        <div class="item-meta">{{ post.user.username }} · {{ new Date(post.created_at).toLocaleDateString() }}</div>
       </div>
     </div>
   </section>
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
+import axios from 'axios'
 
 const router = useRouter()
+const posts = ref([])
 
-const posts = [
-  { id: 1, title: '첫 글입니다', author: 'admin', created_at: '2025-12-22' },
-  { id: 2, title: '환율 정보 어디서 보나요?', author: 'user1', created_at: '2025-12-22' },
-  { id: 3, title: '예금 추천 부탁', author: 'user2', created_at: '2025-12-21' },
-  { id: 4, title: '적금 금리 비교', author: 'user3', created_at: '2025-12-21' },
-  { id: 5, title: '프로젝트 진행 공유', author: 'user4', created_at: '2025-12-20' },
-]
+const fetchPosts = async () => {
+  try {
+    const response = await axios.get('http://127.0.0.1:8000/articles/articles/')
+    posts.value = response.data
+  } catch (error) {
+    console.error('Failed to fetch posts:', error)
+  }
+}
+
+onMounted(() => {
+  fetchPosts()
+})
 
 const goDetail = (id) => {
   router.push(`/board/${id}`)

@@ -148,37 +148,28 @@
 
 <script setup>
 import { computed, onMounted, reactive, ref, watch } from "vue";
+import axios from 'axios';
 
 /**
- * ✅ 나중에 백엔드 붙일 때: 이 함수만 axios로 교체하면 됨.
- * 지금은 더미 데이터(금/은) 생성해서 반환.
+ * ✅ 백엔드 연결: goldsnsilvers API 사용
  * 반환 형태: [{ date: 'YYYY-MM-DD', price: number }, ...]
  */
 async function getFxData(assetKey) {
-  const days = 365;
-  const start = assetKey === "gold" ? 2000 : 25;
-  const vol = assetKey === "gold" ? 18 : 0.45;
-
-  const out = [];
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  let cur = start;
-
-  for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
-
-    const noise = (Math.random() - 0.5) * vol;
-    cur = Math.max(0.01, cur + noise);
-
-    out.push({
-      date: toISODate(d),
-      price: round2(cur),
-    });
+  try {
+    let url = `http://127.0.0.1:8000/goldsnsilvers/api/asset-prices/?asset=${assetKey}`;
+    if (startDate.value && endDate.value && !dateError.value) {
+      url += `&start_date=${startDate.value}&end_date=${endDate.value}`;
+    }
+    const response = await axios.get(url);
+    const data = response.data;
+    return data.labels.map((date, index) => ({
+      date: date,
+      price: data.prices[index]
+    }));
+  } catch (error) {
+    console.error('Failed to fetch FX data:', error);
+    return [];
   }
-
-  return out;
 }
 
 function toISODate(dateObj) {
@@ -377,6 +368,12 @@ onMounted(load);
 watch(asset, async () => {
   await load();
   hover.active = false;
+});
+
+watch([startDate, endDate], async () => {
+  if (!dateError.value) {
+    await load();
+  }
 });
 </script>
 

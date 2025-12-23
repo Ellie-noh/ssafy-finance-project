@@ -20,13 +20,27 @@
 
 <script setup>
 import { ref } from 'vue'
+import axios from 'axios'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
+const router = useRouter()
+const authStore = useAuthStore()
 const email = ref('')
 const password = ref('')
 
-const onSubmit = () => {
-  // 나중에 API 붙일 자리
-  console.log('login', { email: email.value, password: password.value })
+const onSubmit = async () => {
+  try {
+    const response = await axios.post('http://127.0.0.1:8000/accounts/login/', {
+      username: email.value,  // 백엔드가 username으로 받음
+      password: password.value
+    })
+    authStore.setToken(response.data.token)
+    router.push('/')
+  } catch (error) {
+    console.error('Login failed:', error)
+    alert('로그인 실패')
+  }
 }
 </script>
 

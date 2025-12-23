@@ -17,6 +17,35 @@
     <div v-if="loading" class="state">불러오는 중…</div>
     <div v-else-if="error" class="state error">{{ error }}</div>
 
+    <!-- 추천 상품 섹션 -->
+    <section v-if="topProducts.length > 0" class="recommend">
+      <h2>금리 TOP 5 추천</h2>
+      <div class="grid">
+        <RouterLink
+          v-for="p in topProducts"
+          :key="p.fin_prdt_cd"
+          class="card"
+          :to="`/products/${p.fin_prdt_cd}`"
+        >
+          <div class="top">
+            <div class="bank">{{ p.kor_co_nm }}</div>
+            <div class="badge">추천</div>
+          </div>
+          <h3 class="title">{{ p.fin_prdt_nm }}</h3>
+          <div class="meta">
+            <div class="meta-item">
+              <span class="label">우대금리</span>
+              <span class="value">{{ formatRate(p.intr_rate2) }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="label">기간</span>
+              <span class="value">{{ p.save_trm }}개월</span>
+            </div>
+          </div>
+        </RouterLink>
+      </div>
+    </section>
+
     <div v-else class="grid">
       <!-- ✅ 카드 자체를 RouterLink로: 어디 눌러도 상세로 이동 -->
       <RouterLink
@@ -55,26 +84,34 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
 import { RouterLink } from "vue-router";
+import axios from 'axios';
 
 const loading = ref(false);
 const error = ref("");
 const products = ref([]);
-
-const API_URL = import.meta.env.VITE_API_URL || "";
+const topProducts = ref([]);
 
 async function fetchProducts() {
   loading.value = true;
   error.value = "";
 
   try {
-    const res = await fetch(`${API_URL}/api/deposits/`, { credentials: "include" });
-    if (!res.ok) throw new Error("API 응답 오류");
-    const data = await res.json();
-    products.value = Array.isArray(data) ? data : [];
+    const response = await axios.get('http://127.0.0.1:8000/deposits/deposit-products/');
+    products.value = response.data;
   } catch (e) {
-    products.value = dummyProducts;
+    error.value = "상품 목록을 불러오는데 실패했습니다.";
+    console.error(e);
   } finally {
     loading.value = false;
+  }
+}
+
+async function fetchTopProducts() {
+  try {
+    const response = await axios.get('http://127.0.0.1:8000/deposits/top-rates/');
+    topProducts.value = response.data;
+  } catch (e) {
+    console.error('추천 상품 불러오기 실패:', e);
   }
 }
 
@@ -111,7 +148,10 @@ function formatRate(v) {
   return `${Number(v).toFixed(2)}%`;
 }
 
-onMounted(fetchProducts);
+onMounted(async () => {
+  await fetchProducts();
+  await fetchTopProducts();
+});
 
 // ✅ 더미 데이터 (Django 모델명 그대로)
 const dummyProducts = [

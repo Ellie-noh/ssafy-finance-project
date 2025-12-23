@@ -2,29 +2,54 @@
   <section class="page">
     <h1 class="title">Board Detail</h1>
 
-    <div class="card">
+    <div v-if="post" class="card">
       <div class="row">
-        <span class="key">Post ID</span>
-        <span class="value">{{ id }}</span>
+        <span class="key">Title</span>
+        <span class="value">{{ post.title }}</span>
       </div>
-
-      <p class="desc">
-        지금은 더미 상세 화면입니다. 나중에 API 붙이면 id로 글 가져오면 끝.
-      </p>
+      <div class="row">
+        <span class="key">Author</span>
+        <span class="value">{{ post.user.username }}</span>
+      </div>
+      <div class="row">
+        <span class="key">Created</span>
+        <span class="value">{{ new Date(post.created_at).toLocaleString() }}</span>
+      </div>
+      <p class="desc">{{ post.content }}</p>
 
       <RouterLink class="link" to="/board">← Back to list</RouterLink>
+    </div>
+    <div v-else>
+      Loading...
     </div>
   </section>
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
+import axios from 'axios'
 
-defineProps({
+const props = defineProps({
   id: {
     type: [String, Number],
     required: true,
   },
+})
+
+const post = ref(null)
+
+const fetchPost = async () => {
+  try {
+    const response = await axios.get(`http://127.0.0.1:8000/articles/articles/${props.id}/`)
+    post.value = response.data
+  } catch (error) {
+    console.error('Failed to fetch post:', error)
+  }
+}
+
+onMounted(() => {
+  fetchPost()
 })
 </script>
 

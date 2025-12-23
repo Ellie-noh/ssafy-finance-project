@@ -43,11 +43,6 @@
         <p v-else class="hint">
           로그인 후 가입할 수 있어요.
         </p>
-
-        <!-- (선택) 테스트용 로그인 토글: 제출 시 빼도 됨 -->
-        <button class="btn ghost" type="button" @click="toggleLogin">
-          (테스트) 로그인 상태: {{ isLoggedIn ? "ON" : "OFF" }}
-        </button>
       </article>
 
       <article class="card">
@@ -77,45 +72,49 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import axios from 'axios';
+import { useAuthStore } from '@/stores/auth';
 
 const route = useRoute();
 const router = useRouter();
+const authStore = useAuthStore();
 
 const loading = ref(false);
 const error = ref("");
 const product = ref(null);
 
-const API_URL = import.meta.env.VITE_API_URL || "";
+const isLoggedIn = authStore.isLoggedIn;
 
-/** ✅ (임시) 로그인 상태: 나중에 store/백엔드 붙이면 여기만 교체 */
-const isLoggedIn = ref(false);
+async function fetchProduct() {
+  loading.value = true;
+  error.value = "";
 
-function toggleLogin() {
-  isLoggedIn.value = !isLoggedIn.value;
+  try {
+    const fin_prdt_cd = route.params.fin_prdt_cd;
+    const productResponse = await axios.get(`http://127.0.0.1:8000/deposits/deposit-product/${fin_prdt_cd}/`);
+    const optionsResponse = await axios.get(`http://127.0.0.1:8000/deposits/deposit-product-options/${fin_prdt_cd}/`);
+    product.value = { ...productResponse.data, options: optionsResponse.data };
+  } catch (e) {
+    error.value = "상품 정보를 불러오는데 실패했습니다.";
+    console.error(e);
+  } finally {
+    loading.value = false;
+  }
 }
 
-/** ✅ 요구사항: 가입하기 클릭 시 가입목록에 추가
- * 지금은 더미로 localStorage에 저장해두면 "추가됐다"를 증명하기 좋음
- */
 function joinProduct() {
-  if (!product.value) return;
-
-  const key = "joined_products";
-  const prev = JSON.parse(localStorage.getItem(key) || "[]");
-
-  // 중복 방지
-  const exists = prev.some((x) => x.fin_prdt_cd === product.value.fin_prdt_cd);
-  if (!exists) {
-    prev.push({
-      fin_prdt_cd: product.value.fin_prdt_cd,
-      fin_prdt_nm: product.value.fin_prdt_nm,
-      kor_co_nm: product.value.kor_co_nm,
-      joined_at: new Date().toISOString().slice(0, 10),
-    });
-    localStorage.setItem(key, JSON.stringify(prev));
-  }
-
-  alert(exists ? "이미 가입한 상품이에요 (더미)" : "가입 완료! (더미로 저장됨)");
+  if (!isLoggedIn) return;
+  const fin_prdt_cd = route.params.fin_prdt_cd;
+  axios.post(`http://127.0.0.1:8000/accounts/join-product/${fin_prdt_cd}/`, {}, {
+    headers: {
+      'Authorization': `Token ${authStore.token}`
+    }
+  }).then(() => {
+    alert('가입 성공');
+  }).catch(error => {
+    console.error('가입 실패:', error);
+    alert('가입 실패');
+  });
 }
 
 /** ===== 상세 데이터 로드 ===== */
@@ -125,34 +124,15 @@ async function fetchDetail() {
 
   try {
     const fin_prdt_cd = route.params.fin_prdt_cd;
-    const res = await fetch(`${API_URL}/api/deposits/${fin_prdt_cd}/`, {
-      credentials: "include",
-    });
-    if (!res.ok) throw new Error("API 응답 오류");
-    product.value = await res.json();
+    const productResponse = await axios.get(`http://127.0.0.1:8000/deposits/deposit-product/${fin_prdt_cd}/`);
+    const optionsResponse = await axios.get(`http://127.0.0.1:8000/deposits/deposit-product-options/${fin_prdt_cd}/`);
+    product.value = { ...productResponse.data, options: optionsResponse.data };
   } catch (e) {
-    product.value = dummyDetail(route.params.fin_prdt_cd);
-    error.value = "";
+    error.value = "상품 정보를 불러오는데 실패했습니다.";
+    console.error(e);
   } finally {
     loading.value = false;
   }
-}
-
-function dummyDetail(fin_prdt_cd) {
-  return {
-    fin_prdt_cd,
-    kor_co_nm: "테스트은행",
-    fin_prdt_nm: "미니멀 정기예금",
-    etc_note: "백엔드 연결 전 더미 상세입니다.",
-    join_deny: 1,
-    join_member: "개인",
-    join_way: "영업점/모바일",
-    spcl_cnd: "급여이체",
-    options: [
-      { intr_rate_type_nm: "단리", save_trm: "6", intr_rate: 2.1, intr_rate2: 2.8 },
-      { intr_rate_type_nm: "단리", save_trm: "12", intr_rate: 2.3, intr_rate2: 3.0 },
-    ],
-  };
 }
 
 function formatRate(v) {

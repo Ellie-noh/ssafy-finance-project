@@ -12,14 +12,41 @@
     </div>
 
     <div class="actions">
-      <RouterLink to="/login" class="btn ghost">Login</RouterLink>
-      <RouterLink to="/signup" class="btn primary">Signup</RouterLink>
+      <template v-if="!isLoggedIn">
+        <RouterLink to="/login" class="btn ghost">Login</RouterLink>
+        <RouterLink to="/signup" class="btn primary">Signup</RouterLink>
+      </template>
+      <template v-else>
+        <button @click="handleLogout" class="btn ghost">Logout</button>
+      </template>
     </div>
   </nav>
 </template>
 
 <script setup>
-import { RouterLink } from "vue-router";
+import { RouterLink, useRouter } from "vue-router";
+import axios from 'axios'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
+const router = useRouter()
+
+const isLoggedIn = authStore.isLoggedIn
+
+const handleLogout = async () => {
+  try {
+    await axios.post('http://127.0.0.1:8000/accounts/logout/', {}, {
+      headers: {
+        'Authorization': `Token ${authStore.token}`
+      }
+    })
+  } catch (error) {
+    console.error('Logout failed:', error)
+  } finally {
+    authStore.logout()
+    router.push('/')
+  }
+}
 </script>
 
 <style scoped>

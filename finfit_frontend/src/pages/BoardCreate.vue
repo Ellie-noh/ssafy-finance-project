@@ -23,15 +23,34 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+import axios from 'axios'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const authStore = useAuthStore()
 const title = ref('')
 const content = ref('')
 
-const onSubmit = () => {
-  // 나중에 API 붙일 자리
-  console.log('create', { title: title.value, content: content.value })
-  router.push('/board')
+const onSubmit = async () => {
+  if (!authStore.isLoggedIn) {
+    alert('로그인이 필요합니다.')
+    router.push('/login')
+    return
+  }
+  try {
+    await axios.post('http://127.0.0.1:8000/articles/articles/', {
+      title: title.value,
+      content: content.value
+    }, {
+      headers: {
+        'Authorization': `Token ${authStore.token}`
+      }
+    })
+    router.push('/board')
+  } catch (error) {
+    console.error('Failed to create post:', error)
+    alert('게시글 작성 실패')
+  }
 }
 </script>
 

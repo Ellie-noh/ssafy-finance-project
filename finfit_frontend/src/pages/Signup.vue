@@ -25,14 +25,34 @@
 
 <script setup>
 import { ref } from 'vue'
+import axios from 'axios'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
+const router = useRouter()
+const authStore = useAuthStore()
 const email = ref('')
 const password = ref('')
 const password2 = ref('')
 
-const onSubmit = () => {
-  // 나중에 API 붙일 자리
-  console.log('signup', { email: email.value, password: password.value, password2: password2.value })
+const onSubmit = async () => {
+  if (password.value !== password2.value) {
+    alert('비밀번호가 일치하지 않습니다.')
+    return
+  }
+  try {
+    const response = await axios.post('http://127.0.0.1:8000/accounts/signup/', {
+      username: email.value,
+      email: email.value,
+      password: password.value,
+      password2: password2.value
+    })
+    authStore.setToken(response.data.token)
+    router.push('/')
+  } catch (error) {
+    console.error('Signup failed:', error)
+    alert('회원가입 실패')
+  }
 }
 </script>
 
