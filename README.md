@@ -73,88 +73,145 @@ https://www.figma.com/design/hVRARKTw7g033STaYzLGvy/%EC%A0%9C%EB%AA%A9-%EC%97%86
 #### 회원 가입 
 ![SIGNUP](assets/회원가입.png)
 
+
+====================================================================================================================================================
+
 💎 FinFit: AI 기반 맞춤형 금융 상품 추천 서비스
 
-"당신의 자산 관리에 딱 맞는 옷을 입혀드립니다." > 사용자의 성향을 분석하는 AI 챗봇과 실시간 FX 데이터 시각화를 결합한 스마트 금융 큐레이션 플랫폼
+"당신의 금융 라이프스타일에 딱 맞는(Fit) 금융(Finance) 솔루션"
+
+FinFit은 방대한 예적금 상품 데이터와 실시간 FX(금·은) 시세를 분석하여, 생성형 AI가 사용자에게 가장 유리한 금융 상품을 직관적으로 큐레이션해주는 스마트 플랫폼입니다.
 
 <p align="center">
 
-<img src="https://img.shields.io/badge/Version-1.0.0-blue?style=flat-square">
+<img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white">
 
-<img src="https://img.shields.io/badge/Main_Stack-Django_%7C_Vue.js-41B883?style=flat-square">
+<img src="https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white">
 
-<img src="https://img.shields.io/badge/AI_Engine-OpenAI_GPT-orange?style=flat-square">
+<img src="https://img.shields.io/badge/Vue.js-4FC08D?style=for-the-badge&logo=vuedotjs&logoColor=white">
+
+<img src="https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white">
+
+<img src="https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas&logoColor=white">
 
 </p>
 
-📖 Service Overview
+✨ Key Features
 
-FinFit은 복잡한 금융 상품들 속에서 길을 잃은 사용자를 위해 탄생했습니다.
+🏦 Smart Deposit & Savings Comparison
 
-단순한 나열식 정보 제공에서 벗어나, 생성형 AI가 사용자의 니즈를 파악하고 최적의 예적금 상품을 추천하며, 금·은 자산 시세 흐름을 한눈에 파악할 수 있도록 돕습니다.
+금융권 통합 필터링: 여러 은행의 상품을 한곳에서 비교하고, 원하는 은행만 골라보는 필터링 기능.
+
+금리 TOP 5 대시보드: 복잡한 검색 없이 현재 시장에서 가장 높은 수익률을 기록 중인 상위 5개 상품을 메인에 노출.
+
+상세 가이드: 우대 조건, 가입 대상, 금리 옵션을 한눈에 파악할 수 있는 유저 친화적 UI.
+
+📈 FX(Gold/Silver) Market Visualizer
+
+시계열 데이터 분석: 과거 Excel 기반 시세 데이터를 분석하여 특정 기간 내의 가격 변동 추이 제공.
+
+인터렉티브 차트: Chart.js를 이용해 금과 은의 가격 변화를 시각화하여 투자 타이밍 파악 지원.
+
+🤖 AI Financial Advisor (Chatbot)
+
+자연어 기반 추천: 사용자의 질문(예: "사회초년생이 가입하기 좋은 높은 금리의 적금은?")을 이해하고 최적의 상품 선별.
+
+데이터 기반 근거 제시: 단순 나열이 아닌, 해당 상품을 추천하는 구체적인 이유(우대 조건, 금리 등)를 함께 설명.
+
+🛠 Tech Stack
+
+Backend
+
+Framework: Django REST Framework (DRF)
+
+Language: Python 3.x
+
+Data Processing: Pandas (Excel Data Parsing & Filtering)
+
+Database: SQLite
+
+Frontend
+
+Framework: Vue.js 3
+
+State Management: Pinia / Vuex
+
+Visualization: Chart.js
+
+Styling: CSS3 / Scss
+
+🧠 Technical Deep Dive
+
+1. AI 추천 알고리즘 (Recommendation Logic)
+
+사용자의 입력을 바탕으로 최적의 상품을 정렬하기 위해 내부적으로 다음과 같은 Scoring 프로세스를 거칩니다.
+
+$$Score = (w_1 \times BaseRate) + (w_2 \times MaxRate) + (w_3 \times UserPreference)$$
+
+키워드 추출: NLP를 통해 사용자 질문에서 연령대, 상품 유형, 우대 조건 키워드 분석.
+
+후보군 필터링: DB 내 예적금 상품 중 조건을 만족하는 후보군 1차 선별.
+
+가중치 기반 정렬: 우대 금리 포함 여부와 기간 선호도에 따라 상위 N개 상품 선정.
+
+2. 생성형 AI 활용 방식
+
+단순 텍스트 응답을 넘어, 백엔드에서 가공된 **구조화된 상품 데이터(JSON)**를 GPT 모델에 전달하여 사용자 친화적인 요약 문장을 생성하도록 프롬프트를 설계했습니다.
 
 👥 Team & Roles
 
-[Backend]
+성명역할상세 기여 내용황효섭Backend Lead• API 아키텍처 설계 및 구현
 
-황효섭 (Team Leader)
 
-Architecture: Django 기반 REST API 총괄 설계 및 서버 구조화.
 
-Data Engineering: Pandas를 활용한 금융 상품 및 FX(금/은) 데이터 전처리 로직 구현.
+• Pandas를 이용한 금융 데이터 전처리
 
-System Integration: 추천 시스템 백엔드 엔드포인트 구축 및 CORS/인증 보안 설정.
 
-[Frontend]
 
-노유연 (Frontend Lead)
+• 추천 엔진 엔드포인트 연동 및 서버 환경 구축
 
-UI/UX Design: Vue.js 기반의 반응형 웹 디자인 및 사용자 중심 UX 설계.
+노유연Frontend Lead• Vue 기반 싱글 페이지 애플리케이션(SPA) 설계
 
-Data Visualization: Chart.js를 활용한 시세 변동 그래프 및 상품 필터링 시스템 구현.
 
-AI Interface: 대화형 챗봇 UI 및 실시간 메시지 스트리밍 인터렉션 개발.
 
-✨ Key Features
+• Chart.js 시각화 인터페이스 및 챗봇 UI/UX 구현
 
-1️⃣ Intelligent Product Curation
 
-Smart Filter: 은행별, 금리별 맞춤 필터링으로 원하는 상품을 1초 만에 검색.
 
-Interest TOP 5: 현재 시장에서 가장 유리한 우대금리 상품 상위 5개를 자동으로 추출하여 추천.
+• 비로그인 유저 권한 제어 로직 및 라우팅 관리
 
-Detail Analysis: 가입 제한, 우대 조건 등 복잡한 약관을 핵심 정보 위주로 요약 제공.
+📂 Project Structure
 
-2️⃣ FX Market Visualizer
+Bash
 
-Gold & Silver Tracking: 엑셀 데이터 기반의 정밀한 시세 데이터 조회.
 
-Period Selection: 사용자가 원하는 기간을 설정하여 과거부터 현재까지의 시세 흐름을 차트로 확인.
 
-3️⃣ FinFit AI Chatbot
+FinFit/
 
-Natural Language Processing: 자연어 질의를 통해 "사회초년생을 위한 월 50만 원 적금" 같은 구체적 상황 대응.
+├── backend/
 
-Reasoning Service: 단순 추천을 넘어 '왜 이 상품이 사용자에게 적합한지'에 대한 논리적 이유 제공.
+│   ├── api/             # 금융 상품 및 FX 데이터 처리 API
 
-⚙️ Technology Stack
+│   ├── data/            # 금융 상품 및 FX 원천 데이터(Excel)
 
-CategoryTech StackBackendFrontendDatabase/Tool🔍 Recommendation Algorithm
+│   └── chatbot/         # AI 추천 로직 및 GPT 연동
 
-FinFit은 4단계의 고도화된 추천 프로세스를 거칩니다.
+├── frontend/
 
-Keyword Extraction: 사용자 질문에서 연령, 금액, 성향 키워드 추출.
+│   ├── src/
 
-Candidate Filtering: 상품 데이터베이스에서 조건에 부합하는 후보군 생성.
+│   │   ├── components/  # 재사용 가능한 UI 컴포넌트
 
-Scoring & Ranking: 우대금리 및 기간 가중치를 적용하여 최적의 상품 정렬.
+│   │   ├── views/       # 주요 화면 (Main, Product, FX, Chat)
 
-AI Response Generation: 최종 선정된 데이터를 바탕으로 사용자 맞춤형 설명문 생성.
+│   │   └── store/       # 상태 관리 로직
+
+└── README.md
 
 💬 Project Retrospective
 
-"연결의 가치를 배우다" > 황효섭: API 설계부터 환경 설정까지, 프론트엔드와 백엔드가 데이터라는 언어로 소통하며 하나의 완성된 서비스를 만드는 과정에서 협업의 중요성을 깊이 체감했습니다.
+"기술적 도전과 성장"
 
-"사용자의 눈으로 바라보기" > 노유연: 복잡한 금융 데이터를 어떻게 하면 더 직관적으로 전달할 수 있을지 고민하며, 기술적 구현을 넘어 사용자 관점의 설계(User-Centered Design) 능력을 기를 수 있었습니다.
+황효섭: "프론트엔드와 백엔드가 유기적으로 연결되기 위해 API 응답 데이터의 일관성이 얼마나 중요한지 체감했습니다. 데이터 가공 과정에서의 예외 처리를 통해 시스템의 안정성을 확보하는 법을 배웠습니다."
 
-FinFit이 마음에 드셨다면 상단의 ⭐ Star를 눌러주세요!
+노유연: "사용자가 복잡한 금융 정보를 어떻게 하면 더 쉽게 받아들일 수 있을지 고민하며 UI/UX를 설계했습니다. 특히 챗봇의 응답 흐름과 차트 시각화를 통해 데이터 가시성을 높이는 과정이 매우 뜻깊었습니다."
