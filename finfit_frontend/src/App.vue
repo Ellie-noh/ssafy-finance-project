@@ -4,11 +4,13 @@
     <main class="container">
       <router-view />
     </main>
+    <Chatbot />
   </div>
 </template>
 
 <script setup>
 import NavBar from "@/components/NavBar.vue";
+import Chatbot from "@/components/Chatbot.vue";
 </script>
 
 <style scoped>

@@ -46,38 +46,42 @@
       </div>
     </section>
 
-    <div v-else class="grid">
-      <!-- ✅ 카드 자체를 RouterLink로: 어디 눌러도 상세로 이동 -->
-      <RouterLink
-        v-for="p in filteredProducts"
-        :key="p.fin_prdt_cd"
-        class="card"
-        :to="`/products/${p.fin_prdt_cd}`"
-      >
-        <div class="top">
-          <div class="bank">{{ p.kor_co_nm }}</div>
-          <div class="badge">상품</div>
-        </div>
-
-        <h3 class="title">{{ p.fin_prdt_nm }}</h3>
-
-        <div class="meta">
-          <div class="meta-item">
-            <span class="label">최대 우대금리</span>
-            <span class="value">{{ formatRate(getMaxRate2(p)) }}</span>
+    <!-- 전체 상품 섹션 -->
+    <section class="all-products">
+      <h2>전체 상품</h2>
+      <div class="grid">
+        <!-- ✅ 카드 자체를 RouterLink로: 어디 눌러도 상세로 이동 -->
+        <RouterLink
+          v-for="p in filteredProducts"
+          :key="p.fin_prdt_cd"
+          class="card"
+          :to="`/products/${p.fin_prdt_cd}`"
+        >
+          <div class="top">
+            <div class="bank">{{ p.kor_co_nm }}</div>
+            <div class="badge">상품</div>
           </div>
-          <div class="meta-item">
-            <span class="label">기간</span>
-            <span class="value">{{ getTermsText(p) }}</span>
+
+          <h3 class="title">{{ p.fin_prdt_nm }}</h3>
+
+          <div class="meta">
+            <div class="meta-item">
+              <span class="label">최대 우대금리</span>
+              <span class="value">{{ formatRate(getMaxRate2(p)) }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="label">기간</span>
+              <span class="value">{{ getTermsText(p) }}</span>
+            </div>
           </div>
-        </div>
 
-        <p class="note" v-if="p.etc_note">{{ p.etc_note }}</p>
-        <p class="note" v-else>상세에서 가입조건과 금리옵션을 확인할 수 있어요</p>
+          <p class="note" v-if="p.etc_note">{{ p.etc_note }}</p>
+          <p class="note" v-else>상세에서 가입조건과 금리옵션을 확인할 수 있어요</p>
 
-        <div class="arrow">자세히 보기 →</div>
-      </RouterLink>
-    </div>
+          <div class="arrow">자세히 보기 →</div>
+        </RouterLink>
+      </div>
+    </section>
   </section>
 </template>
 
