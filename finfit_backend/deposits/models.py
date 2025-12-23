@@ -9,6 +9,7 @@ class DepositProduct(models.Model):
     join_member = models.TextField(blank=True, null=True)        # 가입대상
     join_way = models.TextField(blank=True, null=True)         # 가입방법
     spcl_cnd = models.TextField(blank=True, null=True)         # 우대조건
+    max_rate = models.FloatField(null=True, blank=True)       # 최대 우대금리
 
     def __str__(self):
         return self.fin_prdt_nm

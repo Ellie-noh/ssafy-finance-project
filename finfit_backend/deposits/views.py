@@ -77,6 +77,14 @@ def save_deposit_products(request):
                 defaults=option_data
             )
 
+        # 모든 옵션 저장 후 max_rate 계산 및 업데이트
+        for product in DepositProduct.objects.all():
+            options = product.options.all()
+            if options:
+                max_rate = max([opt.intr_rate2 for opt in options if opt.intr_rate2 and opt.intr_rate2 > 0] or [0])
+                product.max_rate = max_rate if max_rate > 0 else None
+                product.save()
+
         return Response({"message": f"성공: {len(data['result']['baseList'])}개 상품 저장"})
     
     except requests.exceptions.RequestException as e:
