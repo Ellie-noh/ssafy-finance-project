@@ -74,144 +74,156 @@ https://www.figma.com/design/hVRARKTw7g033STaYzLGvy/%EC%A0%9C%EB%AA%A9-%EC%97%86
 ![SIGNUP](assets/회원가입.png)
 
 
-====================================================================================================================================================
+# 💎 FinFit  
+### AI 기반 맞춤형 금융 상품 추천 서비스  
+> **당신의 자산 관리에 딱 맞는 옷을 입혀드립니다**
 
-💎 FinFit: AI 기반 맞춤형 금융 상품 추천 서비스
-
-"당신의 금융 라이프스타일에 딱 맞는(Fit) 금융(Finance) 솔루션"
-
-FinFit은 방대한 예적금 상품 데이터와 실시간 FX(금·은) 시세를 분석하여, 생성형 AI가 사용자에게 가장 유리한 금융 상품을 직관적으로 큐레이션해주는 스마트 플랫폼입니다.
+사용자의 금융 성향을 분석하는 **AI 챗봇**과  
+**실시간 FX(금·은) 데이터 시각화**를 결합한  
+**스마트 금융 큐레이션 플랫폼**
 
 <p align="center">
-
-<img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white">
-
-<img src="https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white">
-
-<img src="https://img.shields.io/badge/Vue.js-4FC08D?style=for-the-badge&logo=vuedotjs&logoColor=white">
-
-<img src="https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white">
-
-<img src="https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas&logoColor=white">
-
+  <img src="https://img.shields.io/badge/Version-1.0.0-blue?style=flat-square"/>
+  <img src="https://img.shields.io/badge/Main_Stack-Django%20%7C%20Vue.js-41B883?style=flat-square"/>
+  <img src="https://img.shields.io/badge/AI_Engine-OpenAI_GPT-orange?style=flat-square"/>
 </p>
 
-✨ Key Features
+---
 
-🏦 Smart Deposit & Savings Comparison
+## 📖 Service Overview
 
-금융권 통합 필터링: 여러 은행의 상품을 한곳에서 비교하고, 원하는 은행만 골라보는 필터링 기능.
+**FinFit**은 수많은 예·적금 상품 속에서  
+어떤 상품이 나에게 적합한지 판단하기 어려운 사용자를 위해 탄생했습니다.
 
-금리 TOP 5 대시보드: 복잡한 검색 없이 현재 시장에서 가장 높은 수익률을 기록 중인 상위 5개 상품을 메인에 노출.
+단순한 나열식 금융 정보 제공에서 벗어나  
+- 생성형 AI가 **사용자의 니즈와 상황을 이해하고**
+- 최적의 금융 상품을 **이유와 함께 추천**하며
+- 금·은 자산 시세를 **직관적인 차트로 시각화**합니다.
 
-상세 가이드: 우대 조건, 가입 대상, 금리 옵션을 한눈에 파악할 수 있는 유저 친화적 UI.
+👉 정보 탐색이 아닌, **의사결정을 돕는 금융 서비스**를 목표로 합니다.
 
-📈 FX(Gold/Silver) Market Visualizer
+---
 
-시계열 데이터 분석: 과거 Excel 기반 시세 데이터를 분석하여 특정 기간 내의 가격 변동 추이 제공.
+## 👥 Team & Roles
 
-인터렉티브 차트: Chart.js를 이용해 금과 은의 가격 변화를 시각화하여 투자 타이밍 파악 지원.
+### 🧑‍💼 Backend  
+**황효섭 (Team Leader)**
 
-🤖 AI Financial Advisor (Chatbot)
+- **Architecture**
+  - Django 기반 REST API 전체 구조 설계
+  - 서버 아키텍처 및 프로젝트 구조화
+- **Data Engineering**
+  - Pandas를 활용한 예·적금 상품 데이터 전처리
+  - FX(금·은) Excel 데이터 로딩 및 기간 필터링 로직 구현
+- **System Integration**
+  - AI 추천 및 챗봇 API 엔드포인트 구축
+  - CORS 및 서버 환경 설정
 
-자연어 기반 추천: 사용자의 질문(예: "사회초년생이 가입하기 좋은 높은 금리의 적금은?")을 이해하고 최적의 상품 선별.
+---
 
-데이터 기반 근거 제시: 단순 나열이 아닌, 해당 상품을 추천하는 구체적인 이유(우대 조건, 금리 등)를 함께 설명.
+### 🎨 Frontend  
+**노유연 (Frontend Lead)**
 
-🛠 Tech Stack
+- **UI/UX Design**
+  - Vue.js 기반 반응형 웹 UI 설계
+  - 사용자 흐름 중심의 화면 구성 및 컴포넌트 설계
+- **Data Visualization**
+  - 금·은 시세 변동 차트 구현
+  - 금융 상품 리스트 및 필터링 UI 구현
+- **AI Interface**
+  - 플로팅 챗봇 UI 구현
+  - 실시간 메시지 처리 및 사용자 인터랙션 구현
 
-Backend
+---
 
-Framework: Django REST Framework (DRF)
+### 🤝 AI 기능 공동 수행
+- AI 추천 시나리오 및 프롬프트 구조 공동 설계
+- 추천 결과를 자연어로 설명하는 응답 로직 구성
+- 사용자 질문 → 추천 → 설명까지 이어지는 흐름 협업
 
-Language: Python 3.x
+---
 
-Data Processing: Pandas (Excel Data Parsing & Filtering)
+## ✨ Key Features
 
-Database: SQLite
+### 1️⃣ Intelligent Product Curation
 
-Frontend
+- **Smart Filter**
+  - 은행별, 금리별 필터링으로 원하는 상품을 빠르게 탐색
+- **Interest TOP 5**
+  - 우대금리 기준 상위 5개 상품 자동 추천
+- **Detail Analysis**
+  - 복잡한 가입 조건과 우대 조건을 핵심 정보 중심으로 제공
 
-Framework: Vue.js 3
+---
 
-State Management: Pinia / Vuex
+### 2️⃣ FX Market Visualizer
 
-Visualization: Chart.js
+- **Gold & Silver Tracking**
+  - Excel 기반 금·은 시세 데이터 조회
+- **Period Selection**
+  - 사용자가 선택한 기간에 따른 시세 흐름 시각화
+- **Validation**
+  - 선택 기간 내 데이터가 없을 경우 안내 메시지 제공
 
-Styling: CSS3 / Scss
+---
 
-🧠 Technical Deep Dive
+### 3️⃣ FinFit AI Chatbot
 
-1. AI 추천 알고리즘 (Recommendation Logic)
+- **Natural Language Processing**
+  - 자연어 질문을 통한 금융 상품 추천
+- **Reasoning Service**
+  - 단순 추천이 아닌, 추천 이유를 함께 설명
+- **Interactive UI**
+  - 플로팅 형태의 챗봇으로 언제든지 접근 가능
 
-사용자의 입력을 바탕으로 최적의 상품을 정렬하기 위해 내부적으로 다음과 같은 Scoring 프로세스를 거칩니다.
+---
 
-$$Score = (w_1 \times BaseRate) + (w_2 \times MaxRate) + (w_3 \times UserPreference)$$
+## ⚙️ Technology Stack
 
-키워드 추출: NLP를 통해 사용자 질문에서 연령대, 상품 유형, 우대 조건 키워드 분석.
+| Category | Tech Stack |
+|--------|-----------|
+| Backend | Django, Django REST Framework |
+| Frontend | Vue.js, HTML, CSS |
+| Data Processing | Pandas |
+| AI | OpenAI GPT |
+| Visualization | SVG 기반 차트 |
+| Tooling | GitLab, Figma |
 
-후보군 필터링: DB 내 예적금 상품 중 조건을 만족하는 후보군 1차 선별.
+---
 
-가중치 기반 정렬: 우대 금리 포함 여부와 기간 선호도에 따라 상위 N개 상품 선정.
+## 🔍 Recommendation Algorithm
 
-2. 생성형 AI 활용 방식
+FinFit의 금융 상품 추천은 다음 **4단계 프로세스**로 이루어집니다.
 
-단순 텍스트 응답을 넘어, 백엔드에서 가공된 **구조화된 상품 데이터(JSON)**를 GPT 모델에 전달하여 사용자 친화적인 요약 문장을 생성하도록 프롬프트를 설계했습니다.
+1. **Keyword Extraction**  
+   - 사용자 질문에서 연령, 금액, 기간, 금융 성향 키워드 추출
+2. **Candidate Filtering**  
+   - 상품 데이터베이스에서 조건에 부합하는 후보군 생성
+3. **Scoring & Ranking**  
+   - 우대금리, 가입 기간에 가중치를 부여해 상품 정렬
+4. **AI Response Generation**  
+   - 최종 추천 상품을 기반으로 사용자 맞춤 설명 생성
 
-👥 Team & Roles
+---
 
-성명역할상세 기여 내용황효섭Backend Lead• API 아키텍처 설계 및 구현
+## 💬 Project Retrospective
 
+### “연결의 가치를 배우다”  
+**황효섭**
 
+> 프론트엔드와 백엔드가 데이터라는 공통 언어로 소통하며  
+> 하나의 서비스를 완성해가는 과정에서  
+> 협업과 구조 설계의 중요성을 깊이 체감했습니다.
 
-• Pandas를 이용한 금융 데이터 전처리
+---
 
+### “사용자의 눈으로 바라보기”  
+**노유연**
 
+> 복잡한 금융 데이터를 어떻게 하면 더 직관적으로 전달할 수 있을지 고민하며  
+> 기술 구현을 넘어 사용자 중심 설계의 중요성을 배울 수 있었습니다.
 
-• 추천 엔진 엔드포인트 연동 및 서버 환경 구축
+---
 
-노유연Frontend Lead• Vue 기반 싱글 페이지 애플리케이션(SPA) 설계
+## 📌 GitLab Project Name
 
-
-
-• Chart.js 시각화 인터페이스 및 챗봇 UI/UX 구현
-
-
-
-• 비로그인 유저 권한 제어 로직 및 라우팅 관리
-
-📂 Project Structure
-
-Bash
-
-
-
-FinFit/
-
-├── backend/
-
-│   ├── api/             # 금융 상품 및 FX 데이터 처리 API
-
-│   ├── data/            # 금융 상품 및 FX 원천 데이터(Excel)
-
-│   └── chatbot/         # AI 추천 로직 및 GPT 연동
-
-├── frontend/
-
-│   ├── src/
-
-│   │   ├── components/  # 재사용 가능한 UI 컴포넌트
-
-│   │   ├── views/       # 주요 화면 (Main, Product, FX, Chat)
-
-│   │   └── store/       # 상태 관리 로직
-
-└── README.md
-
-💬 Project Retrospective
-
-"기술적 도전과 성장"
-
-황효섭: "프론트엔드와 백엔드가 유기적으로 연결되기 위해 API 응답 데이터의 일관성이 얼마나 중요한지 체감했습니다. 데이터 가공 과정에서의 예외 처리를 통해 시스템의 안정성을 확보하는 법을 배웠습니다."
-
-노유연: "사용자가 복잡한 금융 정보를 어떻게 하면 더 쉽게 받아들일 수 있을지 고민하며 UI/UX를 설계했습니다. 특히 챗봇의 응답 흐름과 차트 시각화를 통해 데이터 가시성을 높이는 과정이 매우 뜻깊었습니다."
