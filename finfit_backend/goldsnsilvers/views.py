@@ -1,19 +1,5 @@
 import pandas as pd
 from django.conf import settings
-import os
-
-GOLD_FILE = os.path.join(settings.BASE_DIR, 'static/files/Gold_prices.xlsx')
-SILVER_FILE = os.path.join(settings.BASE_DIR, 'static/files/Silver_prices.xlsx')
-
-gold_df = pd.read_excel(GOLD_FILE)
-silver_df = pd.read_excel(SILVER_FILE)
-
-gold_df['Date'] = pd.to_datetime(gold_df['Date'])
-silver_df['Date'] = pd.to_datetime(silver_df['Date'])
-
-
-import pandas as pd
-from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -27,6 +13,9 @@ try:
     gold_df = pd.read_excel(GOLD_FILE)
     silver_df = pd.read_excel(SILVER_FILE)
 
+    print("Gold columns:", gold_df.columns.tolist())
+    print("Silver columns:", silver_df.columns.tolist())
+
     gold_df['Date'] = pd.to_datetime(gold_df['Date'])
     silver_df['Date'] = pd.to_datetime(silver_df['Date'])
 
@@ -39,6 +28,16 @@ try:
         silver_df['Price'] = silver_df['Close/Last']
     elif 'Close' in silver_df.columns:
         silver_df['Price'] = silver_df['Close']
+
+    # Clean gold prices: remove commas and convert to float
+    gold_df['Price'] = gold_df['Price'].str.replace(',', '').astype(float)
+
+    print("Gold Price sample:", gold_df['Price'].head())
+    print("Silver Price sample:", silver_df['Price'].head())
+
+    # Remove NaN values
+    gold_df = gold_df.dropna(subset=['Price'])
+    silver_df = silver_df.dropna(subset=['Price'])
 
 except Exception as e:
     print("Excel 파일 로드 실패:", e)
@@ -92,6 +91,9 @@ class AssetPriceView(APIView):
 
         df = df.sort_values('Date')
         df['Date'] = df['Date'].dt.strftime('%Y-%m-%d')
+
+        # NaN 값 제거
+        df = df.dropna(subset=['Price'])
 
         data = {
             "asset": asset_name,

@@ -4,8 +4,9 @@ charset-normalizer==3.4.4
 Django==5.2.4
 django-environ==0.12.0
 djangorestframework==3.16.0
-dj-rest-auth
 djangorestframework-simplejwt
+dj-rest-auth
+drf-nested-routers
 idna==3.11
 requests==2.32.5
 sqlparse==0.5.3

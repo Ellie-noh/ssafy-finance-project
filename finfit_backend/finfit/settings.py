@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'accounts',
     'articles',
     'deposits',
@@ -47,9 +48,24 @@ INSTALLED_APPS = [
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+}
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Vue dev server
+    "http://127.0.0.1:5173",
+]
+
 REST_USE_JWT = True
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",

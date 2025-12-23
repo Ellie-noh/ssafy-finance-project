@@ -86,15 +86,22 @@ def product_options(request, fin_prdt_cd):
 
 
 @api_view(['GET'])
-def top_rate(request):
-    top_option = DepositOption.objects.order_by('-intr_rate2').first()
-    if not top_option:
-        return Response({"message": "데이터 없음"})
-    data = {
-        **DepositProductSerializer(top_option.product).data,
-        "save_trm": top_option.save_trm,
-        "intr_rate_type_nm": top_option.intr_rate_type_nm,
-        "intr_rate": top_option.intr_rate,
-        "intr_rate2": top_option.intr_rate2,
-    }
+def product_detail(request, fin_prdt_cd):
+    product = get_object_or_404(DepositProduct, fin_prdt_cd=fin_prdt_cd)
+    serializer = DepositProductSerializer(product)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def top_rates(request):
+    top_options = DepositOption.objects.order_by('-intr_rate2')[:5]
+    data = []
+    for option in top_options:
+        data.append({
+            **DepositProductSerializer(option.product).data,
+            "save_trm": option.save_trm,
+            "intr_rate_type_nm": option.intr_rate_type_nm,
+            "intr_rate": option.intr_rate,
+            "intr_rate2": option.intr_rate2,
+        })
     return Response(data)
