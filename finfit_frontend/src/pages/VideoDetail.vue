@@ -1,12 +1,26 @@
 <template>
-  <div class="container mt-4">
-    <h2>영상 상세</h2>
-    <iframe width="560" height="315" :src="`https://www.youtube.com/embed/${videoId}`" frameborder="0" allowfullscreen></iframe>
-    <h3 v-if="video">{{ video.snippet.title }}</h3>
-    <p v-if="video">채널: {{ video.snippet.channelTitle }}</p>
-    <p v-if="video">{{ video.snippet.description }}</p>
-    <button v-if="!isSaved" class="btn btn-success" @click="saveVideo">나중에 볼 영상 저장</button>
-    <button v-else class="btn btn-danger" @click="removeVideo">저장 취소</button>
+  <div class="video-detail">
+    <div class="video-container">
+      <iframe
+        width="100%"
+        height="500"
+        :src="`https://www.youtube.com/embed/${videoId}`"
+        frameborder="0"
+        allowfullscreen
+      ></iframe>
+    </div>
+
+    <div class="video-info" v-if="video">
+      <h1 class="video-title">{{ video.snippet.title }}</h1>
+      <div class="video-meta">
+        <span class="channel-name">{{ video.snippet.channelTitle }}</span>
+        <span class="separator">•</span>
+        <span class="upload-date">{{ formatDate(video.snippet.publishedAt) }}</span>
+      </div>
+      <div class="video-description">
+        <p>{{ video.snippet.description }}</p>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -17,18 +31,11 @@ export default {
   data() {
     return {
       videoId: this.$route.params.id,
-      video: null,
-      savedVideos: []
+      video: null
     };
-  },
-  computed: {
-    isSaved() {
-      return this.savedVideos.some(v => v.id === this.videoId);
-    }
   },
   async created() {
     await this.fetchVideoDetails();
-    this.loadSavedVideos();
   },
   methods: {
     async fetchVideoDetails() {
@@ -41,24 +48,101 @@ export default {
         console.error('API 호출 오류:', error);
       }
     },
-    loadSavedVideos() {
-      this.savedVideos = JSON.parse(localStorage.getItem('savedVideos')) || [];
-    },
-    saveVideo() {
-      const videoToSave = {
-        id: this.videoId,
-        title: this.video.snippet.title,
-        thumbnail: this.video.snippet.thumbnails.medium.url
-      };
-      this.savedVideos.push(videoToSave);
-      localStorage.setItem('savedVideos', JSON.stringify(this.savedVideos));
-      this.loadSavedVideos(); // 업데이트
-    },
-    removeVideo() {
-      this.savedVideos = this.savedVideos.filter(v => v.id !== this.videoId);
-      localStorage.setItem('savedVideos', JSON.stringify(this.savedVideos));
-      this.loadSavedVideos(); // 업데이트
+    formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
     }
   }
 };
 </script>
+
+<style scoped>
+.video-detail {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.video-container {
+  margin-bottom: 24px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.video-container iframe {
+  display: block;
+  width: 100%;
+  height: 500px;
+}
+
+.video-info {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.video-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 16px 0;
+  line-height: 1.3;
+}
+
+.video-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #606060;
+}
+
+.channel-name {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.separator {
+  color: #909090;
+}
+
+.upload-date {
+  color: #909090;
+}
+
+.video-description {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #404040;
+}
+
+.video-description p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 768px) {
+  .video-detail {
+    padding: 16px;
+  }
+
+  .video-container iframe {
+    height: 250px;
+  }
+
+  .video-info {
+    padding: 16px;
+  }
+
+  .video-title {
+    font-size: 20px;
+  }
+}
+</style>
