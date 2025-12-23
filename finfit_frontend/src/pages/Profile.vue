@@ -9,7 +9,38 @@
         <h2>회원 정보</h2>
         <div class="info">
           <p><strong>사용자명:</strong> {{ profile.user.username }}</p>
-          <p><strong>이메일:</strong> {{ profile.user.email }}</p>
+          <div class="email-edit">
+            <label for="email"><strong>이메일:</strong></label>
+            <input
+              id="email"
+              v-model="editEmail"
+              type="email"
+              class="email-input"
+              :disabled="!isEditing"
+            />
+            <button
+              v-if="!isEditing"
+              @click="startEdit"
+              class="edit-btn"
+            >
+              수정
+            </button>
+            <button
+              v-else
+              @click="cancelEdit"
+              class="cancel-btn"
+            >
+              취소
+            </button>
+            <button
+              v-if="isEditing"
+              @click="saveEmail"
+              class="save-btn"
+              :disabled="saving"
+            >
+              {{ saving ? '저장 중...' : '저장' }}
+            </button>
+          </div>
         </div>
       </section>
 
@@ -48,6 +79,9 @@ const authStore = useAuthStore()
 const loading = ref(false)
 const error = ref('')
 const profile = ref(null)
+const isEditing = ref(false)
+const editEmail = ref('')
+const saving = ref(false)
 
 async function fetchProfile() {
   if (!authStore.isLoggedIn) {
@@ -64,11 +98,47 @@ async function fetchProfile() {
       }
     })
     profile.value = response.data
+    editEmail.value = response.data.user.email
   } catch (e) {
     error.value = '프로필을 불러오는데 실패했습니다.'
     console.error(e)
   } finally {
     loading.value = false
+  }
+}
+
+function startEdit() {
+  isEditing.value = true
+}
+
+function cancelEdit() {
+  isEditing.value = false
+  editEmail.value = profile.value.user.email
+}
+
+async function saveEmail() {
+  if (!editEmail.value.trim()) {
+    alert('이메일을 입력해주세요.')
+    return
+  }
+
+  saving.value = true
+  try {
+    const response = await axios.patch('http://127.0.0.1:8000/accounts/profile/', {
+      email: editEmail.value
+    }, {
+      headers: {
+        'Authorization': `Token ${authStore.token}`
+      }
+    })
+    profile.value.user.email = response.data.email
+    isEditing.value = false
+    alert('이메일이 수정되었습니다.')
+  } catch (e) {
+    console.error('이메일 수정 실패:', e)
+    alert('이메일 수정에 실패했습니다.')
+  } finally {
+    saving.value = false
   }
 }
 
@@ -90,6 +160,67 @@ onMounted(fetchProfile)
   background: #f9fafb;
   padding: 16px;
   border-radius: 8px;
+}
+
+.email-edit {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.email-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.email-input:disabled {
+  background: #f9fafb;
+  color: #6b7280;
+}
+
+.edit-btn, .cancel-btn, .save-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.edit-btn {
+  background: #3b82f6;
+  color: white;
+}
+
+.edit-btn:hover {
+  background: #2563eb;
+}
+
+.cancel-btn {
+  background: #6b7280;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background: #4b5563;
+}
+
+.save-btn {
+  background: #10b981;
+  color: white;
+}
+
+.save-btn:hover:not(:disabled) {
+  background: #059669;
+}
+
+.save-btn:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
 }
 
 .grid {
