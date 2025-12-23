@@ -7,10 +7,6 @@
         <br />
         한 번에 확인하세요
       </h1>
-      <p class="subtitle">
-        지금은 프론트 UI 단계예요. 나중에 백엔드 API만 연결하면
-        추천/게시판/환율 데이터를 실시간으로 보여줄 수 있어요.
-      </p>
 
       <div class="cta">
         <RouterLink to="/products" class="btn primary">상품 둘러보기</RouterLink>
