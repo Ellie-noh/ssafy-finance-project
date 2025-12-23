@@ -35,10 +35,18 @@ class LogoutView(APIView):
         request.user.auth_token.delete()
         return Response({'message': '로그아웃 성공'}, status=status.HTTP_200_OK)
 
-@api_view(['GET'])
+@api_view(['GET', 'PUT'])
 def user_profile(request):
     if not request.user.is_authenticated:
         return Response({"detail": "로그인 후 이용 가능합니다."}, status=status.HTTP_403_FORBIDDEN)
+    
+    if request.method == 'PUT':
+        serializer = UserSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"user": serializer.data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     user = request.user
     joined_products = user.joined_products.all()
     from deposits.serializers import DepositProductSerializer

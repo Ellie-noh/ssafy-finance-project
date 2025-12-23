@@ -3,14 +3,14 @@
     <div class="hero-left">
       <p class="badge">FinFit • 한 곳에서 금융 비교</p>
       <h1 class="title">
-        금융 상품 추천과 환율, 은행 정보를
+        금융 상품 추천과 현물 정보, 은행 정보를
         <br />
         한 번에 확인하세요
       </h1>
 
       <div class="cta">
         <RouterLink to="/products" class="btn primary">상품 둘러보기</RouterLink>
-        <RouterLink to="/fx" class="btn ghost">환율 보기</RouterLink>
+        <RouterLink to="/fx" class="btn ghost">현물 정보 보기</RouterLink>
         <RouterLink to="/banks" class="btn ghost">은행 찾기</RouterLink>
       </div>
 
@@ -45,8 +45,8 @@
         <div class="mock-item">
           <div class="dot"></div>
           <div class="mock-text">
-            <p class="mock-name">환율 알림</p>
-            <p class="mock-desc">원하는 통화 변동 체크</p>
+            <p class="mock-name">현물 알림</p>
+            <p class="mock-desc">금/은 가격 변동 체크</p>
           </div>
         </div>
 
@@ -73,9 +73,9 @@
     </article>
 
     <article class="card">
-      <h2 class="card-title">환율</h2>
+      <h2 class="card-title">현물 정보</h2>
       <p class="card-desc">
-        환율 정보와 변동 추이를 한 화면에서 볼 수 있게 구성할 수 있어요.
+        금/은 현물 가격과 변동 추이를 한 화면에서 볼 수 있게 구성할 수 있어요.
       </p>
       <RouterLink to="/fx" class="card-link">Fx →</RouterLink>
     </article>
