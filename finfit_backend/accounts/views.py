@@ -43,9 +43,14 @@ def user_profile(request):
     joined_products = user.joined_products.all()
     from deposits.serializers import DepositProductSerializer
     products_data = DepositProductSerializer(joined_products, many=True).data
+    from articles.models import Article
+    from articles.serializers import ArticleSerializer
+    user_articles = Article.objects.filter(user=user)
+    articles_data = ArticleSerializer(user_articles, many=True).data
     return Response({
         "user": UserSerializer(user).data,
-        "joined_products": products_data
+        "joined_products": products_data,
+        "user_articles": articles_data
     })
 
 @api_view(['POST'])

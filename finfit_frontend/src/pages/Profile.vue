@@ -26,7 +26,14 @@
 
       <section class="section">
         <h2>내 게시글</h2>
-        <div class="empty">게시글 조회 기능 준비 중</div>
+        <div v-if="profile.user_articles.length === 0" class="empty">작성한 게시글이 없습니다.</div>
+        <div v-else class="grid">
+          <div v-for="article in profile.user_articles" :key="article.id" class="card">
+            <h3>{{ article.title }}</h3>
+            <p>{{ article.content.substring(0, 100) }}...</p>
+            <small>{{ new Date(article.created_at).toLocaleDateString() }}</small>
+          </div>
+        </div>
       </section>
     </div>
   </div>

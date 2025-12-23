@@ -12,11 +12,12 @@
     </div>
 
     <div class="actions">
-      <template v-if="!isLoggedIn">
+      <template v-if="!authStore.isLoggedIn">
         <RouterLink to="/login" class="btn ghost">Login</RouterLink>
         <RouterLink to="/signup" class="btn primary">Signup</RouterLink>
       </template>
       <template v-else>
+        <RouterLink to="/profile" class="btn ghost">Profile</RouterLink>
         <button @click="handleLogout" class="btn ghost">Logout</button>
       </template>
     </div>
@@ -30,8 +31,6 @@ import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
 const router = useRouter()
-
-const isLoggedIn = authStore.isLoggedIn
 
 const handleLogout = async () => {
   try {

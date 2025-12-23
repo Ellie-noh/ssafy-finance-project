@@ -15,7 +15,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password', 'password2', 'joined_products']  # 금융 가입 상품 포함
+        fields = ['id', 'username', 'email', 'password', 'password2', 'joined_products']
+        read_only_fields = ['joined_products']
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:

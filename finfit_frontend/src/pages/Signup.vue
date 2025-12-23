@@ -4,6 +4,11 @@
 
     <form class="card" @submit.prevent="onSubmit">
       <label class="label">
+        <span>Username</span>
+        <input v-model="username" class="input" type="text" placeholder="username" />
+      </label>
+
+      <label class="label">
         <span>Email</span>
         <input v-model="email" class="input" type="email" placeholder="email@example.com" />
       </label>
@@ -31,6 +36,7 @@ import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const username = ref('')
 const email = ref('')
 const password = ref('')
 const password2 = ref('')
@@ -42,7 +48,7 @@ const onSubmit = async () => {
   }
   try {
     const response = await axios.post('http://127.0.0.1:8000/accounts/signup/', {
-      username: email.value,
+      username: username.value,
       email: email.value,
       password: password.value,
       password2: password2.value
