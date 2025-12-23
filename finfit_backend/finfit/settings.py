@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'articles',
     'deposits',
     'goldsnsilvers',
+    'chatbot',
     'rest_framework',
     'rest_framework.authtoken',
     "django.contrib.admin",
@@ -149,3 +150,4 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 API_KEY = env('API_KEY')
+OPENAI_API_KEY = env('OPENAI_API_KEY')
