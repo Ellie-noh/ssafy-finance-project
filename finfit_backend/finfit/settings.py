@@ -31,6 +31,14 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
+    'accounts',
+    'articles',
+    'deposits',
+    'goldsnsilvers',
+    'chatbot',
+    'rest_framework',
+    'rest_framework.authtoken',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -39,7 +47,26 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 ]
 
+AUTH_USER_MODEL = 'accounts.CustomUser'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+}
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Vue dev server
+    "http://127.0.0.1:5173",
+]
+
+REST_USE_JWT = True
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -114,3 +141,14 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+import environ
+import os
+
+env = environ.Env(DEBUG=(bool, True))
+BASE_DIR = Path(__file__).resolve().parent.parent
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
+API_KEY = env('API_KEY')
+OPENAI_API_KEY = env('OPENAI_API_KEY')
+GMS_API_URL = env('GMS_API_URL', default='https://gms.ssafy.io/gmsapi/')
