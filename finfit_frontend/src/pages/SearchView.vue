@@ -154,7 +154,7 @@ export default {
   align-items: center;
   gap: 8px;
   padding: 16px 24px;
-  background: #3b82f6;
+  background: #111827;
   color: white;
   border: none;
   border-radius: 12px;
@@ -166,7 +166,7 @@ export default {
 }
 
 .search-btn:hover:not(:disabled) {
-  background: #2563eb;
+  background: #1f2937;
 }
 
 .search-btn:disabled {
@@ -196,7 +196,7 @@ export default {
   width: 40px;
   height: 40px;
   border: 4px solid #e5e7eb;
-  border-top: 4px solid #3b82f6;
+  border-top: 4px solid #111827;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 16px;

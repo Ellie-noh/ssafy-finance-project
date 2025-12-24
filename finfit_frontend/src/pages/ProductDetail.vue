@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <section class="wrap">
     <div class="top">
       <button class="back" @click="router.back()">←</button>
@@ -8,7 +8,7 @@
       </div>
     </div>
 
-    <div v-if="loading" class="state">불러오는 중…</div>
+    <div v-if="loading" class="state">불러오는 중...</div>
     <div v-else-if="error" class="state error">{{ error }}</div>
 
     <div v-else-if="product" class="grid">
@@ -29,20 +29,25 @@
         </div>
         <p class="note" v-if="product.etc_note">{{ product.etc_note }}</p>
 
-        <!-- ✅ 요구사항: 로그인된 사용자에게만 가입하기 버튼 표시 -->
-        <button
-          v-if="isLoggedIn"
-          class="btn primary"
-          type="button"
-          @click="joinProduct"
-        >
-          가입하기
-        </button>
-
-        <!-- (선택) 로그인 안 된 경우 안내 문구 -->
-        <p v-else class="hint">
-          로그인 후 가입할 수 있어요.
-        </p>
+        <div v-if="isLoggedIn" class="actions">
+          <button
+            v-if="!isJoined"
+            class="btn primary"
+            type="button"
+            @click="joinProduct"
+          >
+            가입하기
+          </button>
+          <button
+            v-else
+            class="btn danger"
+            type="button"
+            @click="cancelJoin"
+          >
+            가입 취소
+          </button>
+        </div>
+        <p v-else class="hint">로그인 후 가입할 수 있어요.</p>
       </article>
 
       <article class="card">
@@ -72,72 +77,105 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import axios from 'axios';
-import { useAuthStore } from '@/stores/auth';
+import axios from "axios";
+import { storeToRefs } from "pinia";
+import { useAuthStore } from "@/stores/auth";
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
+const { isLoggedIn } = storeToRefs(authStore);
 
 const loading = ref(false);
 const error = ref("");
 const product = ref(null);
+const isJoined = ref(false);
 
-const isLoggedIn = authStore.isLoggedIn;
 
-async function fetchProduct() {
-  loading.value = true;
-  error.value = "";
+function joinProduct() {
+  if (!isLoggedIn.value) return;
+  const finPrdtCd = route.params.fin_prdt_cd;
+  axios
+    .post(`http://127.0.0.1:8000/accounts/join-product/${finPrdtCd}/`, {}, {
+      headers: {
+        Authorization: `Token ${authStore.token}`,
+      },
+    })
+    .then(() => {
+      alert("가입 성공");
+      isJoined.value = true;
+    })
+    .catch((error) => {
+      console.error("가입 실패:", error);
+      alert("가입 실패");
+    });
+}
 
+function cancelJoin() {
+  if (!isLoggedIn.value) return;
+  if (!confirm("가입을 취소할까요?")) return;
+  const finPrdtCd = route.params.fin_prdt_cd;
+  axios
+    .delete(`http://127.0.0.1:8000/accounts/join-product/${finPrdtCd}/`, {
+      headers: {
+        Authorization: `Token ${authStore.token}`,
+      },
+    })
+    .then(() => {
+      alert("가입 취소 완료");
+      isJoined.value = false;
+    })
+    .catch((error) => {
+      console.error("가입 취소 실패:", error);
+      alert("가입 취소 실패");
+    });
+}
+
+async function fetchJoinStatus() {
   try {
-    const fin_prdt_cd = route.params.fin_prdt_cd;
-    const productResponse = await axios.get(`http://127.0.0.1:8000/deposits/deposit-product/${fin_prdt_cd}/`);
-    const optionsResponse = await axios.get(`http://127.0.0.1:8000/deposits/deposit-product-options/${fin_prdt_cd}/`);
-    product.value = { ...productResponse.data, options: optionsResponse.data };
+    const response = await axios.get("http://127.0.0.1:8000/accounts/profile/", {
+      headers: {
+        Authorization: `Token ${authStore.token}`,
+      },
+    });
+    const joined = response.data?.joined_products || [];
+    isJoined.value = joined.some(
+      (p) => p.fin_prdt_cd === route.params.fin_prdt_cd
+    );
   } catch (e) {
-    error.value = "상품 정보를 불러오는데 실패했습니다.";
-    console.error(e);
-  } finally {
-    loading.value = false;
+    console.error("가입 여부 조회 실패:", e);
   }
 }
 
-function joinProduct() {
-  if (!isLoggedIn) return;
-  const fin_prdt_cd = route.params.fin_prdt_cd;
-  axios.post(`http://127.0.0.1:8000/accounts/join-product/${fin_prdt_cd}/`, {}, {
-    headers: {
-      'Authorization': `Token ${authStore.token}`
-    }
-  }).then(() => {
-    alert('가입 성공');
-  }).catch(error => {
-    console.error('가입 실패:', error);
-    alert('가입 실패');
-  });
-}
-
-/** ===== 상세 데이터 로드 ===== */
 async function fetchDetail() {
   loading.value = true;
   error.value = "";
 
   try {
-    const fin_prdt_cd = route.params.fin_prdt_cd;
-    const productResponse = await axios.get(`http://127.0.0.1:8000/deposits/deposit-product/${fin_prdt_cd}/`);
-    const optionsResponse = await axios.get(`http://127.0.0.1:8000/deposits/deposit-product-options/${fin_prdt_cd}/`);
+    const finPrdtCd = route.params.fin_prdt_cd;
+    const productResponse = await axios.get(
+      `http://127.0.0.1:8000/deposits/deposit-product/${finPrdtCd}/`
+    );
+    const optionsResponse = await axios.get(
+      `http://127.0.0.1:8000/deposits/deposit-product-options/${finPrdtCd}/`
+    );
     product.value = { ...productResponse.data, options: optionsResponse.data };
+    if (isLoggedIn.value) {
+      await fetchJoinStatus();
+    }
   } catch (e) {
-    error.value = "상품 정보를 불러오는데 실패했습니다.";
+    error.value = "상품 정보를 불러오는 데 실패했습니다.";
     console.error(e);
   } finally {
     loading.value = false;
   }
 }
 
-function formatRate(v) {
-  if (v === null || v === undefined || Number.isNaN(Number(v))) return "—";
-  return `${Number(v).toFixed(2)}%`;
+function formatRate(value) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) {
+    return "정보 없음";
+  }
+  return `${Number(value).toFixed(2)}%`;
 }
 
 onMounted(fetchDetail);
@@ -170,6 +208,9 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -0.3px; }
 .strong { font-weight: 800; color: #111827; }
 .empty { color: #6b7280; font-size: 14px; }
 
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.actions .btn { width: 100%; }
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -182,11 +223,17 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -0.3px; }
   font-weight: 800;
 }
 .btn.primary {
-  background: #111827;
-  border-color: #111827;
+  background: #2563eb;
+  border-color: #2563eb;
   color: #fff;
 }
-.btn.primary:hover { opacity: 0.92; }
+.btn.primary:hover { background: #1d4ed8; }
+.btn.danger {
+  background: #fff;
+  border-color: #e5e7eb;
+  color: #111827;
+}
+.btn.danger:hover { background: #f3f4f6; }
 .btn.ghost:hover { background: #f9fafb; }
 
 .hint {

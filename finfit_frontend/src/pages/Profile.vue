@@ -1,36 +1,37 @@
-<template>
+﻿<template>
   <div class="page">
     <h1>마이페이지</h1>
 
-    <div v-if="loading" class="state">불러오는 중…</div>
+    <div v-if="loading" class="state">불러오는 중...</div>
     <div v-else-if="error" class="state error">{{ error }}</div>
     <div v-else-if="profile">
-      <!-- 탭 메뉴 -->
       <div class="tabs">
         <button
           class="tab"
           :class="{ active: activeTab === 'profile' }"
           @click="activeTab = 'profile'"
         >
-          프로필 편집
+          프로필
         </button>
         <button
           class="tab"
           :class="{ active: activeTab === 'products' }"
           @click="activeTab = 'products'"
         >
-          가입 상품
+          가입상품
         </button>
       </div>
 
-      <!-- 프로필 편집 탭 -->
       <div v-if="activeTab === 'profile'" class="tab-content">
         <section class="section">
           <h2>회원 정보</h2>
           <div v-if="!isEditing" class="info">
             <p><strong>사용자명:</strong> {{ profile.user.username }}</p>
             <p><strong>이메일:</strong> {{ profile.user.email }}</p>
-            <button @click="startEditing" class="btn edit-btn">수정하기</button>
+            <div class="info-actions">
+              <button @click="startEditing" class="btn edit-btn">수정하기</button>
+              <button @click="deleteAccount" class="btn danger-btn">회원 탈퇴</button>
+            </div>
           </div>
           <form v-else @submit.prevent="updateProfile" class="edit-form">
             <div class="form-group">
@@ -43,7 +44,7 @@
               />
             </div>
             <div class="form-group">
-              <label for="email">이메일:</label>
+              <label for="email">이메일</label>
               <input
                 id="email"
                 v-model="editForm.email"
@@ -59,23 +60,31 @@
         </section>
       </div>
 
-      <!-- 가입 상품 탭 -->
       <div v-if="activeTab === 'products'" class="tab-content">
         <section class="section">
           <h2>가입한 상품</h2>
           <div v-if="profile.joined_products.length === 0" class="empty">가입한 상품이 없습니다.</div>
           <div v-else>
             <div class="grid">
-              <div v-for="product in profile.joined_products" :key="product.fin_prdt_cd" class="card">
+              <div
+                v-for="product in profile.joined_products"
+                :key="product.fin_prdt_cd"
+                class="card clickable"
+                @click="goToProduct(product.fin_prdt_cd)"
+              >
                 <h3>{{ product.fin_prdt_nm }}</h3>
                 <p>{{ product.kor_co_nm }}</p>
-                <p v-if="product.max_rate">최대 우대금리: {{ product.max_rate }}%</p>
+                <p v-if="getProductMaxRate(product) !== null">
+                  최대 우대금리: {{ getProductMaxRate(product) }}%
+                </p>
+                <button class="btn cancel-join" @click.stop="cancelJoin(product.fin_prdt_cd)">
+                  가입 취소
+                </button>
               </div>
             </div>
 
-            <!-- 금리 그래프 -->
             <div class="chart-section">
-              <h3>가입 상품 금리 비교</h3>
+              <h3>가입상품 금리 비교</h3>
               <div class="chart-container">
                 <Bar :data="chartData" :options="chartOptions" />
               </div>
@@ -84,12 +93,16 @@
         </section>
       </div>
 
-      <!-- 내 게시글 (항상 표시) -->
       <section class="section">
         <h2>내 게시글</h2>
         <div v-if="profile.user_articles.length === 0" class="empty">작성한 게시글이 없습니다.</div>
         <div v-else class="grid">
-          <div v-for="article in profile.user_articles" :key="article.id" class="card">
+          <div
+            v-for="article in profile.user_articles"
+            :key="article.id"
+            class="card clickable"
+            @click="goToArticle(article.id)"
+          >
             <h3>{{ article.title }}</h3>
             <p>{{ article.content.substring(0, 100) }}...</p>
             <small>{{ new Date(article.created_at).toLocaleDateString() }}</small>
@@ -102,7 +115,9 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
+import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
 import {
   Chart as ChartJS,
@@ -119,6 +134,8 @@ import ChartDataLabels from 'chartjs-plugin-datalabels'
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ChartDataLabels)
 
 const authStore = useAuthStore()
+const { isLoggedIn } = storeToRefs(authStore)
+const router = useRouter()
 const loading = ref(false)
 const error = ref('')
 const profile = ref(null)
@@ -130,7 +147,44 @@ const editForm = ref({
   email: ''
 })
 
-// 차트 데이터
+function getProductMaxRate(product) {
+  const candidates = []
+
+  if (typeof product.max_rate === 'number') {
+    candidates.push(product.max_rate)
+  } else if (typeof product.max_rate === 'string' && product.max_rate.trim() !== '') {
+    const parsed = Number(product.max_rate)
+    if (!Number.isNaN(parsed)) {
+      candidates.push(parsed)
+    }
+  }
+
+  if (Array.isArray(product.options)) {
+    for (const option of product.options) {
+      const value = option.intr_rate2 ?? option.intr_rate
+      if (typeof value === 'number') {
+        candidates.push(value)
+      } else if (typeof value === 'string' && value.trim() !== '') {
+        const parsed = Number(value)
+        if (!Number.isNaN(parsed)) {
+          candidates.push(parsed)
+        }
+      }
+    }
+  }
+
+  const maxRate = Math.max(...candidates.filter(v => v > 0))
+  return Number.isFinite(maxRate) && maxRate > 0 ? maxRate : null
+}
+
+function goToArticle(articleId) {
+  router.push(`/board/${articleId}`)
+}
+
+function goToProduct(finPrdtCd) {
+  router.push(`/products/${finPrdtCd}`)
+}
+
 const chartData = computed(() => {
   if (!profile.value || !profile.value.joined_products.length) {
     return {
@@ -144,7 +198,7 @@ const chartData = computed(() => {
     labels: products.map(p => p.fin_prdt_nm.length > 15 ? p.fin_prdt_nm.substring(0, 15) + '...' : p.fin_prdt_nm),
     datasets: [{
       label: '최대 우대금리 (%)',
-      data: products.map(p => p.max_rate || 0),
+      data: products.map(p => getProductMaxRate(p) ?? 0),
       backgroundColor: 'rgba(54, 162, 235, 0.6)',
       borderColor: 'rgba(54, 162, 235, 1)',
       borderWidth: 1
@@ -160,7 +214,7 @@ const chartOptions = {
     },
     title: {
       display: true,
-      text: '가입 상품 금리 비교'
+      text: '가입상품 금리 비교'
     },
     datalabels: {
       anchor: 'end',
@@ -183,7 +237,7 @@ const chartOptions = {
 }
 
 async function fetchProfile() {
-  if (!authStore.isLoggedIn) {
+  if (!isLoggedIn.value) {
     error.value = '로그인이 필요합니다.'
     return
   }
@@ -193,13 +247,16 @@ async function fetchProfile() {
   try {
     const response = await axios.get('http://127.0.0.1:8000/accounts/profile/', {
       headers: {
-        'Authorization': `Token ${authStore.token}`
+        Authorization: `Token ${authStore.token}`
       }
     })
     profile.value = response.data
-    editEmail.value = response.data.user.email
+    editForm.value = {
+      username: response.data.user.username,
+      email: response.data.user.email
+    }
   } catch (e) {
-    error.value = '프로필을 불러오는데 실패했습니다.'
+    error.value = '프로필을 불러오는 데 실패했습니다.'
     console.error(e)
   } finally {
     loading.value = false
@@ -224,7 +281,7 @@ async function updateProfile() {
   try {
     const response = await axios.put('http://127.0.0.1:8000/accounts/profile/', editForm.value, {
       headers: {
-        'Authorization': `Token ${authStore.token}`
+        Authorization: `Token ${authStore.token}`
       }
     })
     profile.value.user = response.data.user
@@ -235,6 +292,49 @@ async function updateProfile() {
     console.error(e)
   } finally {
     saving.value = false
+  }
+}
+
+async function deleteAccount() {
+  if (!confirm('회원 탈퇴를 진행할까요?')) return
+
+  try {
+    await axios.delete('http://127.0.0.1:8000/accounts/profile/', {
+      headers: {
+        Authorization: `Token ${authStore.token}`
+      }
+    })
+    authStore.logout()
+    router.push('/')
+    alert('회원 탈퇴가 완료되었습니다.')
+  } catch (e) {
+    error.value = '회원 탈퇴에 실패했습니다.'
+    console.error(e)
+  }
+}
+
+async function cancelJoin(finPrdtCd) {
+  if (!isLoggedIn.value) {
+    error.value = '로그인이 필요합니다.'
+    return
+  }
+
+  if (!confirm('가입을 취소할까요?')) {
+    return
+  }
+
+  try {
+    await axios.delete(`http://127.0.0.1:8000/accounts/join-product/${finPrdtCd}/`, {
+      headers: {
+        Authorization: `Token ${authStore.token}`
+      }
+    })
+    profile.value.joined_products = profile.value.joined_products.filter(
+      product => product.fin_prdt_cd !== finPrdtCd
+    )
+  } catch (e) {
+    error.value = '가입 취소에 실패했습니다.'
+    console.error(e)
   }
 }
 
@@ -292,24 +392,12 @@ onMounted(fetchProfile)
   background: #f9fafb;
   padding: 16px;
   border-radius: 8px;
-  position: relative;
 }
 
-.edit-btn {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  padding: 8px 16px;
-  background: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.edit-btn:hover {
-  background: #2563eb;
+.info-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .edit-form {
@@ -360,12 +448,12 @@ onMounted(fetchProfile)
 }
 
 .save-btn {
-  background: #10b981;
+  background: #2563eb;
   color: white;
 }
 
 .save-btn:hover:not(:disabled) {
-  background: #059669;
+  background: #1d4ed8;
 }
 
 .save-btn:disabled {
@@ -374,35 +462,16 @@ onMounted(fetchProfile)
 }
 
 .cancel-btn {
-  background: #6b7280;
-  color: white;
+  background: #fff;
+  color: #111827;
+  border: 1px solid #e5e7eb;
 }
 
 .cancel-btn:hover {
-  background: #4b5563;
+  background: #f3f4f6;
 }
 
-.email-edit {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.email-input {
-  flex: 1;
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.email-input:disabled {
-  background: #f9fafb;
-  color: #6b7280;
-}
-
-.edit-btn, .cancel-btn, .save-btn {
+.btn {
   padding: 8px 16px;
   border: none;
   border-radius: 6px;
@@ -412,35 +481,23 @@ onMounted(fetchProfile)
 }
 
 .edit-btn {
-  background: #3b82f6;
-  color: white;
+  background: #fff;
+  color: #111827;
+  border: 1px solid #e5e7eb;
 }
 
 .edit-btn:hover {
-  background: #2563eb;
+  background: #f3f4f6;
 }
 
-.cancel-btn {
-  background: #6b7280;
-  color: white;
+.danger-btn {
+  background: #fff;
+  color: #111827;
+  border: 1px solid #e5e7eb;
 }
 
-.cancel-btn:hover {
-  background: #4b5563;
-}
-
-.save-btn {
-  background: #10b981;
-  color: white;
-}
-
-.save-btn:hover:not(:disabled) {
-  background: #059669;
-}
-
-.save-btn:disabled {
-  background: #d1d5db;
-  cursor: not-allowed;
+.danger-btn:hover {
+  background: #f3f4f6;
 }
 
 .grid {
@@ -456,6 +513,30 @@ onMounted(fetchProfile)
   padding: 16px;
   background: #fff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card.clickable {
+  cursor: pointer;
+}
+
+.card.clickable:hover {
+  border-color: #bfdbfe;
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.15);
+}
+
+.cancel-join {
+  margin-top: 12px;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #111827;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.cancel-join:hover {
+  background: #f3f4f6;
 }
 
 .chart-section {

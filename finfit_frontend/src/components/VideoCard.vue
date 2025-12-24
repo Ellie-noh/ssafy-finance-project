@@ -151,7 +151,7 @@ export default {
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  background: #ff0000;
+  background: #111827;
   color: white;
   text-decoration: none;
   border-radius: 6px;
@@ -161,7 +161,7 @@ export default {
 }
 
 .watch-btn:hover {
-  background: #cc0000;
+  background: #1f2937;
   color: white;
 }
 
