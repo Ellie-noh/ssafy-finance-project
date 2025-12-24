@@ -6,35 +6,86 @@
     
     <div v-if="isOpen" class="chat-window">
       <div class="chat-header">
-        <h3>AI 금융 추천</h3>
+        <h3>AI 금융 상담</h3>
         <button @click="toggleChat" class="close-btn">×</button>
       </div>
       
       <div class="chat-messages" ref="messagesContainer">
-        <div v-for="msg in messages" :key="msg.id" 
-             :class="['message', msg.sender === 'user' ? 'user' : 'bot']">
-          {{ msg.text }}
+        <div
+          v-for="msg in messages"
+          :key="msg.id"
+          :class="['message', msg.sender === 'user' ? 'user' : 'bot']"
+        >
+          <pre>{{ msg.text }}</pre>
         </div>
         <div v-if="isTyping" class="message bot typing">
-          AI가 입력 중...
+          AI가 답변 중...
         </div>
       </div>
-      
+
+      <div class="step-prompts">
+        <div class="prompt-section">
+          <div class="prompt-title">나이대</div>
+          <div class="prompt-buttons">
+            <button
+              v-for="opt in ageOptions"
+              :key="opt"
+              :class="['prompt-btn', selected.age === opt ? 'selected' : '']"
+              @click="selectOption('age', opt)"
+            >
+              {{ opt }}
+            </button>
+          </div>
+        </div>
+        <div class="prompt-section">
+          <div class="prompt-title">월 저축 가능 금액</div>
+          <div class="prompt-buttons">
+            <button
+              v-for="opt in amountOptions"
+              :key="opt"
+              :class="['prompt-btn', selected.amount === opt ? 'selected' : '']"
+              @click="selectOption('amount', opt)"
+            >
+              {{ opt }}
+            </button>
+          </div>
+        </div>
+        <div class="prompt-section">
+          <div class="prompt-title">저축 목적</div>
+          <div class="prompt-buttons">
+            <button
+              v-for="opt in purposeOptions"
+              :key="opt"
+              :class="['prompt-btn', selected.purpose === opt ? 'selected' : '']"
+              @click="selectOption('purpose', opt)"
+            >
+              {{ opt }}
+            </button>
+          </div>
+        </div>
+        <div class="prompt-actions">
+          <button class="reset-btn" @click="resetSelection">선택 초기화</button>
+          <button class="send-btn filled" :disabled="!isSelectionComplete" @click="sendSelection">
+            선택한 정보로 추천받기
+          </button>
+        </div>
+      </div>
+
       <div class="chat-input">
         <input 
           v-model="userInput" 
           @keyup.enter="sendMessage" 
-          placeholder="금융 상품 추천을 물어보세요..."
+          placeholder="궁금한 걸 물어보세요..." 
           class="input-field"
         >
-        <button @click="sendMessage" class="send-btn">전송</button>
+        <button @click="sendMessage" class="send-btn">보내기</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, computed } from 'vue'
 import axios from 'axios'
 
 const isOpen = ref(false)
@@ -43,31 +94,42 @@ const messages = ref([])
 const isTyping = ref(false)
 const messagesContainer = ref(null)
 
+const ageOptions = ['20대', '30대', '40대', '50대', '60세 이상']
+const amountOptions = ['30만원 이하', '100만원 이하', '1000만원 이하', '1000만원 이상']
+const purposeOptions = ['여행', '교육', '장기', '단기', '기타']
+const selected = ref({ age: null, amount: null, purpose: null })
+
+const isSelectionComplete = computed(() => selected.value.age && selected.value.amount && selected.value.purpose)
+
 const toggleChat = () => {
   isOpen.value = !isOpen.value
   if (isOpen.value && messages.value.length === 0) {
-    addMessage('bot', '안녕하세요! 저는 AI 금융 추천 봇입니다. 예금, 적금 상품 추천을 도와드릴게요. 무엇을 도와드릴까요?')
+    addMessage(
+      'bot',
+      '안녕하세요! 😊\n예금이나 적금 상품 추천을 도와드릴까요?\n아래 단계별 선택 버튼으로 나이대, 월 저축 가능액, 저축 목적을 선택해주세요.'
+    )
   }
 }
 
 const sendMessage = async () => {
   if (!userInput.value.trim()) return
-  
   const message = userInput.value.trim()
   userInput.value = ''
-  
-  addMessage('user', message)
+  await sendMessageWithText(message)
+}
+
+const sendMessageWithText = async (text) => {
+  if (!text.trim()) return
+  addMessage('user', text.trim())
   isTyping.value = true
-  
   try {
     const response = await axios.post('http://127.0.0.1:8000/chatbot/chat/', {
-      message: message
+      message: text.trim()
     })
-    
     addMessage('bot', response.data.message)
   } catch (error) {
     console.error('챗봇 에러:', error)
-    addMessage('bot', '죄송합니다. 일시적인 오류가 발생했습니다. 다시 시도해주세요.')
+    addMessage('bot', '잠시 후 다시 시도해주세요. 문제가 계속되면 관리자에게 문의해주세요.')
   } finally {
     isTyping.value = false
   }
@@ -79,12 +141,25 @@ const addMessage = (sender, text) => {
     sender,
     text
   })
-  
   nextTick(() => {
     if (messagesContainer.value) {
       messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
     }
   })
+}
+
+const selectOption = (type, value) => {
+  selected.value = { ...selected.value, [type]: value }
+}
+
+const resetSelection = () => {
+  selected.value = { age: null, amount: null, purpose: null }
+}
+
+const sendSelection = async () => {
+  if (!isSelectionComplete.value) return
+  const text = `나이대: ${selected.value.age}, 월 저축 가능 금액: ${selected.value.amount}, 저축 목적: ${selected.value.purpose} — 이 조건에 맞는 예금/적금 상품을 추천해줘`
+  await sendMessageWithText(text)
 }
 </script>
 
@@ -100,18 +175,18 @@ const addMessage = (sender, text) => {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: #2563eb;
-  color: white;
+  background: linear-gradient(135deg, #0ea5e9, #2563eb);
+  color: #fff;
   border: none;
   font-size: 24px;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35);
   transition: all 0.3s ease;
 }
 
 .chat-toggle:hover {
   transform: scale(1.1);
-  background: #1d4ed8;
+  box-shadow: 0 12px 32px rgba(14, 165, 233, 0.4);
 }
 
 .chat-window {
@@ -119,19 +194,20 @@ const addMessage = (sender, text) => {
   bottom: 80px;
   right: 0;
   width: 350px;
-  height: 500px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  height: 620px;
+  background: linear-gradient(145deg, #f8fafc, #eef2ff);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 16px 48px rgba(15, 23, 42, 0.18);
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
 .chat-header {
-  background: #2563eb;
-  color: white;
-  padding: 16px;
+  background: linear-gradient(135deg, #2563eb, #0ea5e9);
+  color: #fff;
+  padding: 16px 18px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -139,14 +215,15 @@ const addMessage = (sender, text) => {
 
 .chat-header h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 15px;
+  letter-spacing: 0.2px;
 }
 
 .close-btn {
   background: none;
   border: none;
   color: white;
-  font-size: 24px;
+  font-size: 20px;
   cursor: pointer;
   padding: 0;
   width: 24px;
@@ -158,31 +235,41 @@ const addMessage = (sender, text) => {
 
 .chat-messages {
   flex: 1;
-  padding: 16px;
+  padding: 18px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+  background: #f8fafc;
 }
 
 .message {
-  max-width: 80%;
-  padding: 8px 12px;
-  border-radius: 18px;
-  font-size: 14px;
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 13.5px;
   line-height: 1.4;
+  white-space: pre-wrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.message pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: inherit;
 }
 
 .message.user {
   align-self: flex-end;
-  background: #2563eb;
-  color: white;
+  background: linear-gradient(135deg, #2563eb, #0ea5e9);
+  color: #fff;
 }
 
 .message.bot {
   align-self: flex-start;
-  background: #f3f4f6;
-  color: #374151;
+  background: #ffffff;
+  color: #1f2937;
+  border: 1px solid #e5e7eb;
 }
 
 .message.typing {
@@ -190,9 +277,79 @@ const addMessage = (sender, text) => {
   color: #9ca3af;
 }
 
-.chat-input {
-  padding: 16px;
+.step-prompts {
+  padding: 14px 16px;
   border-top: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #f4f7fb, #eef2ff);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.prompt-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.prompt-title {
+  font-size: 12px;
+  color: #4b5563;
+  font-weight: 600;
+}
+
+.prompt-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.prompt-btn {
+  padding: 6px 10px;
+  border: 1px solid #dbeafe;
+  border-radius: 14px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+  color: #1f2937;
+}
+
+.prompt-btn.selected {
+  background: linear-gradient(135deg, #2563eb, #0ea5e9);
+  color: #fff;
+  border-color: #2563eb;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+}
+
+.prompt-btn:hover {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+
+.prompt-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.reset-btn {
+  padding: 6px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 14px;
+  background: white;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.chat-input {
+  padding: 14px 16px;
+  border-top: 1px solid #e5e7eb;
+  background: #f8fafc;
   display: flex;
   gap: 8px;
 }
@@ -200,25 +357,31 @@ const addMessage = (sender, text) => {
 .input-field {
   flex: 1;
   padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 20px;
+  border: 1px solid #dbeafe;
+  border-radius: 16px;
   outline: none;
   font-size: 14px;
 }
 
 .input-field:focus {
   border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 .send-btn {
   padding: 8px 16px;
-  background: #2563eb;
-  color: white;
+  background: linear-gradient(135deg, #2563eb, #0ea5e9);
+  color: #fff;
   border: none;
   border-radius: 20px;
   cursor: pointer;
   font-size: 14px;
   transition: background 0.2s;
+}
+
+.send-btn.filled:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
 }
 
 .send-btn:hover {

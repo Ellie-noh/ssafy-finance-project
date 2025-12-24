@@ -151,3 +151,4 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 API_KEY = env('API_KEY')
 OPENAI_API_KEY = env('OPENAI_API_KEY')
+GMS_API_URL = env('GMS_API_URL', default='https://gms.ssafy.io/gmsapi/')

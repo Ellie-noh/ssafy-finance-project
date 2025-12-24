@@ -13,21 +13,6 @@
         <RouterLink to="/fx" class="btn ghost">현물 정보 보기</RouterLink>
         <RouterLink to="/banks" class="btn ghost">은행 찾기</RouterLink>
       </div>
-
-      <div class="stats">
-        <div class="stat">
-          <p class="stat-num">3</p>
-          <p class="stat-label">핵심 기능</p>
-        </div>
-        <div class="stat">
-          <p class="stat-num">1</p>
-          <p class="stat-label">플랫폼</p>
-        </div>
-        <div class="stat">
-          <p class="stat-num">30+</p>
-          <p class="stat-label">현황 데이터</p>
-        </div>
-      </div>
     </div>
 
     <div class="hero-right">
@@ -165,34 +150,6 @@ import { RouterLink } from "vue-router";
 
 .btn.ghost:hover {
   background: #f9fafb;
-}
-
-.stats {
-  display: flex;
-  gap: 18px;
-  margin-top: 12px;
-  flex-wrap: wrap;
-}
-
-.stat {
-  min-width: 110px;
-  padding: 10px 12px;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  background: #fff;
-}
-
-.stat-num {
-  font-size: 22px;
-  font-weight: 800;
-  margin: 0;
-  color: #111827;
-}
-
-.stat-label {
-  margin: 4px 0 0;
-  color: #6b7280;
-  font-size: 13px;
 }
 
 .hero-right {
