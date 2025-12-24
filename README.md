@@ -1,4 +1,4 @@
-# SSAFY 맞춤 금융상품 추천 서비스 FinFit
+﻿# SSAFY 맞춤 금융상품 추천 서비스 FinFit
 
 > **서울 6반 4조** - 금융 상품 비교·추천 + 환율 + 근처 은행 찾기까지 한 번에!  
 > 금융감독원·한국수출입은행·카카오맵 API를 활용한 사용자 맞춤형 금융 웹 서비스
@@ -19,7 +19,7 @@
 | 금융상품 목록 & 검색   | 금융감독원 API 연동 → 정기예금 상품 조회·검색                               |
 | 금리 TOP5 추천        | 최고 금리 기준 상위 5개 상품 추천                                          |
 | 상품 가입 신청        | 관심 상품에 바로 가입 신청                                                 |
-| 환율 계산기 & 차트     | 한국수출입은행 API → 환율 계산 및 기간별 차트                               |
+| 현물 시세 그래프      | 금/은 현물 시세 데이터 → 기간별 차트                                        |
 | 근처 은행 찾기        | Kakao Map API 연동 → 위치 기준 은행 마커 표시                              | 
 | 커뮤니티 게시판       | CRUD 완비, 작성자만 수정/삭제 가능                                         |
 | 마이페이지            | 가입한 상품, 나의 게시글 조회, 회원정보 수정, 탈퇴                           |
@@ -34,37 +34,39 @@
 
 ![ERD](assets/ERD.png)
 
-### UCD (Use Case Diagram)
-
-![UCD](assets/UCD.png)
 
 # 화면설계
 
-- figma 링크
-https://www.figma.com/design/hVRARKTw7g033STaYzLGvy/%EC%A0%9C%EB%AA%A9-%EC%97%86%EC%9D%8C?node-id=0-1&t=TphFpSBO6CFi0nbf-1
 
-- 화면 목록
-홈페이지 / 금융 상품 목록 / 환율 / 은행 지도 / 게시판 / 개인 프로필 / 로그인 / 회원 가입
+- 화면 목록 <br>
+Home (홈페이지) / Products(금융 상품 목록) / Fx (금/은 시세) / Banks (은행 위치 지도) / Board (게시판) / Videos(영상) / <br>
+Profile (개인 프로필) / 로그인 (Login) / 회원 가입 (Signup) <br>
 
 ### 상세 이미지
 
 #### 홈페이지 
 ![HOMEPAGE](assets/홈페이지.png)
+![AIBOT](assets/AI추천봇.png)
 
 #### 금융 상품 목록 
-![LIST](assets/금융상품목록화면.png)
+![PRODUCT](assets/금융상품목록.png)
 
-#### 환율 
-![EXCHANGE](assets/환율.png)
+#### 현물 시세
+![FX](assets/현물.png)
 
 #### 은행 지도 
 ![MAP](assets/은행지도.png)
 
 #### 게시판
-![ARTICLE](assets/게시판.png)
+![ARTICLE](assets/게시판1.png)<br>
+![ARTICLE](assets/게시판2.png)
+
+#### 관심 영상
+![VIDEO](assets/비디오.png)
 
 #### 개인 프로필 
-![PROFILE](assets/개인프로필.png)
+![PROFILE](assets/개인프로필1.png)
+![PROFILE](assets/개인프로필2.png)
 
 #### 로그인
 ![LOGIN](assets/로그인.png)
@@ -224,6 +226,3 @@ FinFit의 금융 상품 추천은 다음 **4단계 프로세스**로 이루어�
 > 기술 구현을 넘어 사용자 중심 설계의 중요성을 배울 수 있었습니다.
 
 ---
-
-## 📌 GitLab Project Name
-
