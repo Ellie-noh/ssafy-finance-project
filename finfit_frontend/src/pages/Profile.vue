@@ -197,6 +197,7 @@ async function fetchProfile() {
       }
     })
     profile.value = response.data
+    editEmail.value = response.data.user.email
   } catch (e) {
     error.value = '프로필을 불러오는데 실패했습니다.'
     console.error(e)
@@ -379,6 +380,67 @@ onMounted(fetchProfile)
 
 .cancel-btn:hover {
   background: #4b5563;
+}
+
+.email-edit {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.email-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.email-input:disabled {
+  background: #f9fafb;
+  color: #6b7280;
+}
+
+.edit-btn, .cancel-btn, .save-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.edit-btn {
+  background: #3b82f6;
+  color: white;
+}
+
+.edit-btn:hover {
+  background: #2563eb;
+}
+
+.cancel-btn {
+  background: #6b7280;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background: #4b5563;
+}
+
+.save-btn {
+  background: #10b981;
+  color: white;
+}
+
+.save-btn:hover:not(:disabled) {
+  background: #059669;
+}
+
+.save-btn:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
 }
 
 .grid {

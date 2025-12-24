@@ -135,13 +135,8 @@
           <div class="ttPrice">{{ formatPrice(hover.price) }}</div>
         </div>
 
-        <div v-if="!pathD" class="empty">데이터가 없습니다.</div>
+        <div v-if="!pathD" class="empty">{{ emptyMessage }}</div>
       </div>
-    </section>
-
-    <section class="note">
-      <div class="noteTitle">Backend 연결할 때</div>
-      <div class="noteText">아래 getFxData()만 axios로 바꾸면 화면 코드는 그대로 유지돼.</div>
     </section>
   </div>
 </template>
@@ -214,6 +209,7 @@ const rangeKey = ref("3M");
 const assetLabel = computed(() => (asset.value === "gold" ? "Gold" : "Silver"));
 const rangeLabel = computed(() => ranges.find((r) => r.key === rangeKey.value)?.label ?? "ALL");
 
+
 /**
  * ✅ 필터 우선순위
  * 1) 날짜가 둘 다 선택되어 있고, 오류가 없으면 날짜 필터
@@ -235,6 +231,13 @@ const filteredSeries = computed(() => {
   const startIndex = Math.max(0, len - r.days);
   return data.slice(startIndex);
 });
+const emptyMessage = computed(() => {
+  if (startDate.value && endDate.value && !dateError.value && !filteredSeries.value.length) {
+    return "선택한 조건에 해당하는 데이터가 없습니다.";
+  }
+  return "데이터가 없습니다.";
+});
+
 
 const summary = computed(() => {
   const data = filteredSeries.value;
@@ -639,24 +642,6 @@ watch([startDate, endDate], async () => {
   font-weight: 700;
 }
 
-.note {
-  border: 1px dashed #e5e7eb;
-  border-radius: 14px;
-  padding: 12px;
-  background: #fafafa;
-}
-
-.noteTitle {
-  font-weight: 900;
-  color: #111827;
-  margin-bottom: 6px;
-}
-
-.noteText {
-  color: #6b7280;
-  font-size: 13px;
-  font-weight: 700;
-}
 
 @media (max-width: 900px) {
   .summary {
