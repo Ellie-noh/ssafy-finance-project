@@ -4,7 +4,11 @@
       💬
     </button>
     
-    <div v-if="isOpen" class="chat-window">
+    <div
+      v-if="isOpen"
+      class="chat-window"
+      :style="{ width: chatWidth + 'px', height: chatHeight + 'px' }"
+    >
       <div class="chat-header">
         <h3>AI 금융 상담</h3>
         <button @click="toggleChat" class="close-btn">×</button>
@@ -80,12 +84,14 @@
         >
         <button @click="sendMessage" class="send-btn">보내기</button>
       </div>
+
+      <div class="resize-handle" @mousedown.prevent="startResize"></div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, nextTick, computed } from 'vue'
+import { ref, nextTick, computed, onBeforeUnmount } from 'vue'
 import axios from 'axios'
 
 const isOpen = ref(false)
@@ -93,6 +99,10 @@ const userInput = ref('')
 const messages = ref([])
 const isTyping = ref(false)
 const messagesContainer = ref(null)
+const chatWidth = ref(350)
+const chatHeight = ref(620)
+const isResizing = ref(false)
+const resizeStart = { x: 0, y: 0, width: 0, height: 0 }
 
 const ageOptions = ['20대', '30대', '40대', '50대', '60세 이상']
 const amountOptions = ['30만원 이하', '100만원 이하', '1000만원 이하', '1000만원 이상']
@@ -161,6 +171,35 @@ const sendSelection = async () => {
   const text = `나이대: ${selected.value.age}, 월 저축 가능 금액: ${selected.value.amount}, 저축 목적: ${selected.value.purpose} — 이 조건에 맞는 예금/적금 상품을 추천해줘`
   await sendMessageWithText(text)
 }
+
+const startResize = (event) => {
+  isResizing.value = true
+  resizeStart.x = event.clientX
+  resizeStart.y = event.clientY
+  resizeStart.width = chatWidth.value
+  resizeStart.height = chatHeight.value
+  document.addEventListener('mousemove', onResize)
+  document.addEventListener('mouseup', stopResize)
+}
+
+const onResize = (event) => {
+  if (!isResizing.value) return
+  const dx = resizeStart.x - event.clientX
+  const dy = resizeStart.y - event.clientY
+  chatWidth.value = Math.max(320, Math.min(600, resizeStart.width + dx))
+  chatHeight.value = Math.max(420, Math.min(800, resizeStart.height + dy))
+}
+
+const stopResize = () => {
+  if (!isResizing.value) return
+  isResizing.value = false
+  document.removeEventListener('mousemove', onResize)
+  document.removeEventListener('mouseup', stopResize)
+}
+
+onBeforeUnmount(() => {
+  stopResize()
+})
 </script>
 
 <style scoped>
@@ -386,6 +425,24 @@ const sendSelection = async () => {
 
 .send-btn:hover {
   background: #1d4ed8;
+}
+
+.resize-handle {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: #cbd5e1;
+  cursor: nwse-resize;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.resize-handle:hover {
+  opacity: 1;
+  background: #94a3b8;
 }
 
 @media (max-width: 480px) {
