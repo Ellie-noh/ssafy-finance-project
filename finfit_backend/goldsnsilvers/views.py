@@ -13,8 +13,8 @@ try:
     gold_df = pd.read_excel(GOLD_FILE)
     silver_df = pd.read_excel(SILVER_FILE)
 
-    print("Gold columns:", gold_df.columns.tolist())
-    print("Silver columns:", silver_df.columns.tolist())
+    # print("Gold columns:", gold_df.columns.tolist())
+    # print("Silver columns:", silver_df.columns.tolist())
 
     gold_df['Date'] = pd.to_datetime(gold_df['Date'])
     silver_df['Date'] = pd.to_datetime(silver_df['Date'])
@@ -32,8 +32,8 @@ try:
     # Clean gold prices: remove commas and convert to float
     gold_df['Price'] = gold_df['Price'].str.replace(',', '').astype(float)
 
-    print("Gold Price sample:", gold_df['Price'].head())
-    print("Silver Price sample:", silver_df['Price'].head())
+    # print("Gold Price sample:", gold_df['Price'].head())
+    # print("Silver Price sample:", silver_df['Price'].head())
 
     # Remove NaN values
     gold_df = gold_df.dropna(subset=['Price'])
