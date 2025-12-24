@@ -1,9 +1,9 @@
-<template>
+﻿<template>
   <section class="hero">
     <div class="hero-left">
-      <p class="badge">FinFit • 한 곳에서 금융 비교</p>
+      <p class="badge">FinFit 금융 생활의 기준</p>
       <h1 class="title">
-        금융 상품 추천과 현물 정보, 은행 정보를
+        금융 상품 추천과 맞춤 정보,
         <br />
         한 번에 확인하세요
       </h1>
@@ -24,8 +24,8 @@
           <p class="stat-label">플랫폼</p>
         </div>
         <div class="stat">
-          <p class="stat-num">∞</p>
-          <p class="stat-label">확장 가능</p>
+          <p class="stat-num">30+</p>
+          <p class="stat-label">현황 데이터</p>
         </div>
       </div>
     </div>
@@ -38,7 +38,7 @@
           <div class="dot"></div>
           <div class="mock-text">
             <p class="mock-name">예적금 Top3</p>
-            <p class="mock-desc">금리, 기간, 혜택 기준으로 한눈에</p>
+            <p class="mock-desc">금리, 기간, 혜택 기준으로 빠르게 비교</p>
           </div>
         </div>
 
@@ -54,7 +54,7 @@
           <div class="dot"></div>
           <div class="mock-text">
             <p class="mock-name">가까운 은행</p>
-            <p class="mock-desc">지도 기반으로 빠르게 찾기</p>
+            <p class="mock-desc">지점 기반으로 빠르게 찾기</p>
           </div>
         </div>
 
@@ -67,7 +67,7 @@
     <article class="card">
       <h2 class="card-title">금융 상품</h2>
       <p class="card-desc">
-        예적금/대출 등 상품을 비교하고, 추천 기준을 확장할 수 있어요.
+        예적금부터 우대 상품까지 비교하고, 추천 기반으로 빠르게 선택하세요.
       </p>
       <RouterLink to="/products" class="card-link">Products →</RouterLink>
     </article>
@@ -75,7 +75,7 @@
     <article class="card">
       <h2 class="card-title">현물 정보</h2>
       <p class="card-desc">
-        금/은 현물 가격과 변동 추이를 한 화면에서 볼 수 있게 구성할 수 있어요.
+        금/은 가격과 변동 추이를 한눈에 볼 수 있도록 구성했어요.
       </p>
       <RouterLink to="/fx" class="card-link">Fx →</RouterLink>
     </article>
@@ -83,7 +83,7 @@
     <article class="card">
       <h2 class="card-title">은행 찾기</h2>
       <p class="card-desc">
-        지도 API 연동 후 위치 기반 검색으로 확장할 수 있어요.
+        지도 API 연동으로 위치 기반 검색을 손쉽게 제공합니다.
       </p>
       <RouterLink to="/banks" class="card-link">BankMap →</RouterLink>
     </article>
@@ -91,7 +91,7 @@
     <article class="card">
       <h2 class="card-title">게시판</h2>
       <p class="card-desc">
-        커뮤니티로 후기/질문을 공유하고, 로그인 연동도 쉽게 붙일 수 있어요.
+        커뮤니티에서 후기와 질문을 공유하고, 정보를 연결해보세요.
       </p>
       <RouterLink to="/board" class="card-link">Board →</RouterLink>
     </article>
