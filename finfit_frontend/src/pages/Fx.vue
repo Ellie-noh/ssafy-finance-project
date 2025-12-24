@@ -130,7 +130,11 @@
           <circle v-if="hover.active" :cx="hover.x" :cy="hover.y" r="4" fill="#111827" />
         </svg>
 
-        <div v-if="hover.active" class="tooltip" :style="{ left: `${hover.clientX}px` }">
+        <div
+          v-if="hover.active"
+          class="tooltip"
+          :style="{ left: `${hover.left}px`, top: `${hover.top}px` }"
+        >
           <div class="ttDate">{{ hover.date }}</div>
           <div class="ttPrice">{{ formatPrice(hover.price) }}</div>
         </div>
@@ -313,7 +317,8 @@ const hover = reactive({
   y: 0,
   price: 0,
   date: "",
-  clientX: 0,
+  left: 0,
+  top: 0,
 });
 
 function onMove(e) {
@@ -326,7 +331,8 @@ function onMove(e) {
   const px = e.clientX - rect.left;
   const ratio = Math.min(1, Math.max(0, px / rect.width));
 
-  const idx = Math.round(ratio * (data.length - 1));
+  const pos = ratio * (data.length - 1);
+  const idx = Math.min(data.length - 1, Math.max(0, Math.floor(pos)));
   const item = data[idx];
 
   const prices = data.map((d) => d.price);
@@ -335,14 +341,18 @@ function onMove(e) {
   const span = Math.max(0.0001, max - min);
 
   const x = (idx / Math.max(1, data.length - 1)) * width;
-  const y = height - ((item.price - min) / span) * height;
+  const price = item.price;
+  const y = height - ((price - min) / span) * height;
 
   hover.active = true;
   hover.x = x;
   hover.y = y;
-  hover.price = item.price;
+  hover.price = price;
   hover.date = item.date;
-  hover.clientX = e.clientX;
+  const left = Math.min(Math.max((x / width) * rect.width, 12), rect.width - 12);
+  const top = rect.height + 16;
+  hover.left = left;
+  hover.top = top;
 }
 
 function onLeave() {
@@ -598,8 +608,8 @@ watch([startDate, endDate], async () => {
   border: 1px solid #e5e7eb;
   border-radius: 14px;
   background: #fff;
-  padding: 12px;
-  overflow: hidden;
+  padding: 12px 0;
+  overflow: visible;
 }
 
 .chart {
@@ -609,8 +619,7 @@ watch([startDate, endDate], async () => {
 }
 
 .tooltip {
-  position: fixed;
-  top: 16px;
+  position: absolute;
   transform: translateX(-50%);
   padding: 10px 12px;
   border: 1px solid #e5e7eb;
@@ -619,7 +628,7 @@ watch([startDate, endDate], async () => {
   backdrop-filter: blur(6px);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
   pointer-events: none;
-  z-index: 50;
+  z-index: 10;
   min-width: 140px;
 }
 
