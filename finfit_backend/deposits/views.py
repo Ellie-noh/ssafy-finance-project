@@ -1,7 +1,8 @@
-﻿from django.shortcuts import get_object_or_404
-from rest_framework.decorators import api_view
+from django.shortcuts import get_object_or_404
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAdminUser
 from django.conf import settings
 import requests
 
@@ -134,6 +135,7 @@ def _load_products(target_total=100, max_pages=50):
 
 
 @api_view(['GET'])
+@permission_classes([IsAdminUser])
 def save_deposit_products(request):
     try:
         success, payload, code = _load_products()

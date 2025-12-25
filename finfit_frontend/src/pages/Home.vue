@@ -22,8 +22,8 @@
         <div class="mock-item">
           <div class="dot"></div>
           <div class="mock-text">
-            <p class="mock-name">예적금 Top3</p>
-            <p class="mock-desc">금리, 기간, 혜택 기준으로 빠르게 비교</p>
+            <p class="mock-name">예적금 Top5</p>
+            <p class="mock-desc">금리 기준으로 빠르게 비교</p>
           </div>
         </div>
 
