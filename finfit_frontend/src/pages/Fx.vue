@@ -1,8 +1,8 @@
 <template>
   <div class="fx">
     <header class="header">
-      <h1 class="title">FX / Commodities</h1>
-      <p class="subtitle">Spot price (dummy) · Minimal UI</p>
+      <h1 class="title">Bullion / Gold n Silver</h1>
+      <p class="subtitle">Bullion / Gold n Silver</p>
     </header>
 
     <!-- ✅ 자산 선택 + 기간 선택(기존) -->

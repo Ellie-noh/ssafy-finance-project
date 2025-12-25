@@ -5,7 +5,7 @@
     <div class="links">
       <RouterLink to="/" class="link">Home</RouterLink>
       <RouterLink to="/products" class="link">Products</RouterLink>
-      <RouterLink to="/fx" class="link">Fx</RouterLink>
+      <RouterLink to="/fx" class="link">Bullion</RouterLink>
       <RouterLink to="/banks" class="link">Banks</RouterLink>
       <RouterLink to="/board" class="link">Board</RouterLink>
       <RouterLink to="/search" class="link">Videos</RouterLink>

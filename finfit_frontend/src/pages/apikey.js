@@ -1,3 +1,2 @@
-export const API_KEY='66747d6395b1be3026505dbfc7919365'
-export const REST_API_KEY='f67cf308722a968f0a1c09056d1fe493'
-
+export const API_KEY = import.meta.env.VITE_KAKAO_API_KEY
+export const REST_API_KEY = import.meta.env.VITE_KAKAO_REST_API_KEY

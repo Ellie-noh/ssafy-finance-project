@@ -1,10 +1,11 @@
-﻿from rest_framework.views import APIView
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth import authenticate
+from django.shortcuts import get_object_or_404
 from .serializers import UserSerializer, LoginSerializer, CustomUserSerializer
 from deposits.models import DepositProduct
 
@@ -43,10 +44,8 @@ class LogoutView(APIView):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
 def user_profile(request):
-    if not request.user.is_authenticated:
-        return Response({'detail': 'Authentication required.'}, status=status.HTTP_403_FORBIDDEN)
-
     if request.method == 'DELETE':
         try:
             request.user.auth_token.delete()
@@ -78,16 +77,12 @@ def user_profile(request):
 
 
 @api_view(['POST', 'DELETE'])
+@permission_classes([IsAuthenticated])
 def join_product(request, fin_prdt_cd):
-    if not request.user.is_authenticated:
-        return Response({'detail': 'Authentication required.'}, status=status.HTTP_403_FORBIDDEN)
-    try:
-        product = DepositProduct.objects.get(fin_prdt_cd=fin_prdt_cd)
-        if request.method == 'DELETE':
-            request.user.joined_products.remove(product)
-            return Response({'message': 'Join canceled.'})
+    product = get_object_or_404(DepositProduct, fin_prdt_cd=fin_prdt_cd)
+    if request.method == 'DELETE':
+        request.user.joined_products.remove(product)
+        return Response({'message': 'Join canceled.'})
 
-        request.user.joined_products.add(product)
-        return Response({'message': 'Joined.'})
-    except DepositProduct.DoesNotExist:
-        return Response({'error': 'Product not found.'}, status=status.HTTP_404_NOT_FOUND)
+    request.user.joined_products.add(product)
+    return Response({'message': 'Joined.'})
